@@ -9,8 +9,15 @@ class gaia
         echo "(gaia main method)";
         gaia::setup();
 
-        // test
-        test::hello();
+        // web mode or cli mode
+        if (is_callable("index::web")) {
+            // web mode
+            web::run();
+        }
+        else {
+            // cli mode
+            cli::run();
+        }
     }
 
     static function setup ()
