@@ -8,13 +8,14 @@ class web
         // debug line
 
         $uri = $_SERVER["REQUEST_URI"] ?? "";
-        echo date("Y-m-d H:i:s") . " (hello world: $uri)";
+        $now = date("ymd-His");
+        echo "(hello world: $uri)($now)";
 
         if ($uri == "/gitpull") {
             // execute git pull
             `git pull`;
         }
-        
+
         // // get the request
         // $request = request::get();
 
