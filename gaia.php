@@ -6,7 +6,7 @@ class gaia
     static function main ()
     {
         // debug line
-        echo "(gaia main method)";
+        // echo "(gaia main method)";
         gaia::setup();
 
         // web mode or cli mode
