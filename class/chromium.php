@@ -5,7 +5,19 @@ class chromium
     static function test ()
     {
         echo "(chromium test method)";
-        
+        extract(cli::param_json(2));
+        $targetUrl = $url ?? "";
+        $w ??= 1680;
+        $h ??= 2160;
+
+        // debug
+        echo "(targetUrl: $targetUrl)";
+        // if targetUrl is not set then exit
+        if (!$targetUrl) {
+            echo "(targetUrl is not set)";
+            return;
+        }
+
         // my youtube video format
         // $w = 1680;
         // $h = 2160;
@@ -13,8 +25,6 @@ class chromium
         // linkedin video format
         // $w = 720;
         // $h = 720;
-        $w = 1680;
-        $h = 2160;
         // https://github.com/chrome-php/chrome
 
         // replace default 'chrome' with 'chromium-browser' or 'chromium'
@@ -26,7 +36,6 @@ class chromium
         try {
             $now = date("ymd-His");
 
-            $targetUrl = "https://asimov.applh.com";
             $targetFile = __DIR__ . "/../my-data/screenshot-$now.png";
 
             $x = 0;
@@ -36,6 +45,10 @@ class chromium
             // load the page and take screenshot
             $page = $browser->createPage();
             $page->navigate($targetUrl)->waitForNavigation();
+            $html = $page->getHtml();
+            // debug
+            echo "$html";
+
             $page
                 ->screenshot([    
                     'captureBeyondViewport' => true,

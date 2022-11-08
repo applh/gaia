@@ -3,6 +3,8 @@
 // POO code organisation
 class gaia
 {
+    static $root = __DIR__;
+    
     static function main ()
     {
         // debug line
