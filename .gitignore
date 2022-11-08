@@ -1,0 +1,4 @@
+my-*
+.DS_Store
+vendor
+composer.lock

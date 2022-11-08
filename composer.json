@@ -1,0 +1,7 @@
+{
+    "require": {
+        "phpmailer/phpmailer": "^6.6",
+        "guzzlehttp/guzzle": "^7.5",
+        "erusev/parsedown": "^1.7"
+    }
+}
