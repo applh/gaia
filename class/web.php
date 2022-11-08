@@ -6,8 +6,15 @@ class web
     static function run ()
     {
         // debug line
-        echo date("Y-m-d H:i:s") . " (hello world)";
 
+        $uri = $_SERVER["REQUEST_URI"] ?? "";
+        echo date("Y-m-d H:i:s") . " (hello world: $uri)";
+
+        if ($uri == "/gitpull") {
+            // execute git pull
+            `git pull`;
+        }
+        
         // // get the request
         // $request = request::get();
 
