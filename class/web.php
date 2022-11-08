@@ -5,19 +5,22 @@ class web
     // run the web application
     static function run ()
     {
-        // get the request
-        $request = request::get();
+        // debug line
+        echo date("Y-m-d H:i:s") . " (hello world)";
 
-        // get the route
-        $route = route::get($request);
+        // // get the request
+        // $request = request::get();
 
-        // get the controller
-        $controller = controller::get($route);
+        // // get the route
+        // $route = route::get($request);
 
-        // get the response
-        $response = response::get($controller);
+        // // get the controller
+        // $controller = controller::get($route);
 
-        // send the response
-        response::send($response);
+        // // get the response
+        // $response = response::get($controller);
+
+        // // send the response
+        // response::send($response);
     }
 }
