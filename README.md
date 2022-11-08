@@ -15,4 +15,4 @@ GeoCMS Artificial Intelligence Applications
 
 ### GLB
 
-[bottle](glb/bottle.glb)
+[bottle](media/glb/bottle.glb)
