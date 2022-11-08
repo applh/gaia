@@ -39,3 +39,14 @@ GeoCMS Artificial Intelligence Applications
 * Archive of all assets
 
 [bottle](media/glb/bottle.glb)
+
+
+### UTILS
+
+#### github hooks
+
+* You can add a hook to your github repository
+* So that when you push to github, the hook will be called
+* This can be used to update your website automatically
+* https://github.com/YOUR-USER/YOUR-REPO/settings/hooks
+

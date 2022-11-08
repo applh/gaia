@@ -9,13 +9,27 @@ class web
 
         $uri = $_SERVER["REQUEST_URI"] ?? "";
         $now = date("ymd-His");
-        echo "(hello world: $uri)($now)";
 
         if ($uri == "/gitpull") {
-            // execute git pull
-            `git pull`;
-        }
+            $infos = [];
 
+            echo "(hello world: $uri)($now)";
+            // execute git pull
+            // `git pull`;
+            $output = shell_exec("git pull");
+            // return json data
+            $infos["now"] = $now;
+            $infos["uri"] = $uri;
+            $infos["output"] = $output;
+
+            // return json data
+            header("Content-Type: application/json");
+            echo json_encode($infos, JSON_PRETTY_PRINT);
+        }
+        else {
+            // load template file templates/home.php
+            require __DIR__ . "/../templates/home.php";
+        }
         // // get the request
         // $request = request::get();
 
