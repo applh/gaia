@@ -26,6 +26,10 @@ class web
             header("Content-Type: application/json");
             echo json_encode($infos, JSON_PRETTY_PRINT);
         }
+        elseif ($uri == "/aframe") {
+            // load template file templates/home.php
+            require __DIR__ . "/../templates/aframe.php";
+        }
         else {
             // load template file templates/home.php
             require __DIR__ . "/../templates/home.php";
