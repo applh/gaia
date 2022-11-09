@@ -52,4 +52,5 @@ class cli
         // return the json data
         return $result;
     }
+
 }

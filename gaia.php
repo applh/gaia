@@ -24,9 +24,14 @@ class gaia
 
     static function setup ()
     {
+        gaia::kv("root", __DIR__);
+        gaia::kv("path_class", __DIR__ . "/class");
+        gaia::kv("path_data", __DIR__ . "/my-data");
+        $path_config = gaia::kv("config", __DIR__ . "/my-data/config.php");
+
         // load the config file config.php if it exists
-        if (file_exists(__DIR__ . "/my-data/config.php")) {
-            require __DIR__ . "/my-data/config.php";
+        if (file_exists($path_config)) {
+            require $path_config;
         }
 
         // install class autoloader
@@ -49,6 +54,22 @@ class gaia
             require $file;
         }
     }
+
+    // get or set key values
+    static function kv ($key, $value = null)
+    {
+        // get the key values
+        static $kv = [];
+        // if $value is null, then return the value
+        if ($value === null) {
+            return $kv[$key] ?? null;
+        }
+        // set the value
+        $kv[$key] = $value;
+
+        return $value;
+    }
+    
 }
 
 // call the web method
