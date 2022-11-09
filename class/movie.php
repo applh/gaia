@@ -19,6 +19,26 @@ class movie
 
         $title ??= "";
         $slides ??= [];
+        $markdown ??= "";
+        $font_size ??= 40;
+
+        if ($markdown) {
+            // get all titles
+            $blocs = gaia::kv("os/markdown/blocs") ?? [];
+            foreach($blocs as $line => $bloc) {
+                $slide_title = $bloc["title"] ?? "";
+                $slide_content = $bloc["content"] ?? "";
+
+                // $slide_title = str_replace("#", "", $slide_title);
+                $slide_title = trim($slide_title);
+                $slides[] = [ 
+                    "title" => $slide_title,
+                    "content" => $slide_content,
+                ];
+            }
+            // debug
+            print_r($slides);
+        }
 
         // get data path
         $path_data = gaia::kv("path_data");
@@ -56,10 +76,13 @@ class movie
             $transparent = imagecolorallocatealpha($frame, 255, 255, 255, 127);
             imagefill($frame, 0, 0, $transparent);
             // write the frame index
+            $black = imagecolorallocatealpha($frame, 0, 0, 0, 0);
             $red = imagecolorallocatealpha($frame, 255, 0, 0, 0);
             // write text with ttf font
             $slide_title = $slides[$frame_index]["title"] ?? $title ?? "";
             $slide_content = $slides[$frame_index]["content"] ?? "";
+
+            $page_number = $frame_index+1;
 
             $text = <<<txt
             
@@ -67,13 +90,13 @@ class movie
             
             $slide_content
 
-            ($frame_index)
+            ---------*---------*---------*---------*---------*
+            $page_number
 
             txt;
 
-            $font_size = 50;
 
-            movie::text_center($frame, $text, $red, $font_size, $font, $width, $height);
+            movie::text_center($frame, $text, $black, $font_size, $font, $width, $height);
 
             // save alpha channel
             imagesavealpha($frame, true);
@@ -103,6 +126,12 @@ class movie
         // important for youtube as it will be the title
         // and youtube keeps the original filename
         $file ??= "movie";
+        $markdown ??= "";
+        if ($markdown) {
+            // store the filename
+            gaia::kv("os/markdown/file", $markdown);
+            os::markdown();
+        }
 
         $path_frames = movie::build_frames();
 
