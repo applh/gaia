@@ -1,6 +1,8 @@
 <html>
   <head>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
+
   </head>
   <body>
     <a-scene>
@@ -9,6 +11,9 @@
       <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
       <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
       <a-sky color="#ECECEC"></a-sky>
+      
+      <a-entity environment="preset: forest; dressingAmount: 500"></a-entity>
+
     </a-scene>
   </body>
 </html>

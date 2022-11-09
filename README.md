@@ -50,3 +50,8 @@ GeoCMS Artificial Intelligence Applications
 * This can be used to update your website automatically
 * https://github.com/YOUR-USER/YOUR-REPO/settings/hooks
 
+
+### AFRAME
+
+* Build a 3D scene in a web page
+* https://aframe.io/docs/1.3.0/guides/building-a-basic-scene.html
