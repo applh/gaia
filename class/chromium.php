@@ -9,9 +9,10 @@ class chromium
         $targetUrl = $url ?? "";
         $w ??= 1680;
         $h ??= 2160;
+        $timeout ??= 120000;
 
         // debug
-        echo "(targetUrl: $targetUrl)";
+        echo "(targetUrl: $targetUrl)(timeout: $timeout)";
         // if targetUrl is not set then exit
         if (!$targetUrl) {
             echo "(targetUrl is not set)";
@@ -44,7 +45,16 @@ class chromium
 
             // load the page and take screenshot
             $page = $browser->createPage();
-            $page->navigate($targetUrl)->waitForNavigation();
+            // $page->navigate($targetUrl)->waitForNavigation(HeadlessChromium\Page::NETWORK_IDLE, $timeout);
+            $page->navigate($targetUrl)->waitForNavigation(HeadlessChromium\Page::LOAD, $timeout);
+
+            // evaluate script in the browser
+            $evaluation = $page->evaluate('document.querySelectorAll(".a-enter-vr-button").forEach((e) => e.style.display = "none");') ?? "";
+
+            // wait for the value to return and get it
+            $value = $evaluation->getReturnValue($timeout);
+            echo "(value: $value)";
+
             $html = $page->getHtml();
             // debug
             echo "$html";
