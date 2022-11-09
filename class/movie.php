@@ -18,6 +18,7 @@ class movie
         extract(cli::param_json(2));
 
         $title ??= "";
+        $slides ??= [];
 
         // get data path
         $path_data = gaia::kv("path_data");
@@ -40,7 +41,7 @@ class movie
         $path_media = gaia::kv("path_media");
         $font = "$path_media/fonts/RobotoMono-Light.ttf";
         // loop and build frames
-        foreach(range(1, $nb_frames) as $frame_index)
+        foreach(range(0, $nb_frames-1) as $frame_index)
         {
             
             // get the frame file path
@@ -57,22 +58,41 @@ class movie
             // write the frame index
             $red = imagecolorallocatealpha($frame, 255, 0, 0, 0);
             // write text with ttf font
-            $text = "$title $frame_index";
-            $font_size = 100;
-            $text_width = imagettfbbox($font_size, 0, $font, $text)[2];
-            $text_height = imagettfbbox($font_size, 0, $font, $text)[3];
-            $text_x = round(0.5 * ($width - $text_width));
-            $text_y = round(0.5 * ($height - $text_height));
-            imagettftext($frame, $font_size, 0, $text_x, $text_y, $red, $font, $text);
+            $slide_title = $slides[$frame_index]["title"] ?? $title ?? "";
+            $slide_content = $slides[$frame_index]["content"] ?? "";
+
+            $text = <<<txt
+            
+            $slide_title
+            
+            $slide_content
+
+            ($frame_index)
+
+            txt;
+
+            $font_size = 50;
+
+            movie::text_center($frame, $text, $red, $font_size, $font, $width, $height);
 
             // save alpha channel
             imagesavealpha($frame, true);
             // save the frame
+            // WARNING: webp frames are bad for ffmpeg
             imagepng($frame, $frame_file);
             // free the frame
             imagedestroy($frame);
         }
         return $path_movies;
+    }
+
+    static function text_center ($frame, $text, $color, $font_size, $font, $width, $height)
+    {
+        $text_width = imagettfbbox($font_size, 0, $font, $text)[2];
+        $text_height = imagettfbbox($font_size, 0, $font, $text)[3];
+        $text_x = round(0.5 * ($width - $text_width));
+        $text_y = round(0.5 * ($height - $text_height));
+        imagettftext($frame, $font_size, 0, $text_x, $text_y, $color, $font, $text);
     }
 
     static function build_movie ()
