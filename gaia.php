@@ -24,8 +24,10 @@ class gaia
 
     static function setup ()
     {
+        // setup paths
         gaia::kv("root", __DIR__);
         gaia::kv("path_class", __DIR__ . "/class");
+        gaia::kv("path_media", __DIR__ . "/media");
         gaia::kv("path_data", __DIR__ . "/my-data");
         $path_config = gaia::kv("config", __DIR__ . "/my-data/config.php");
 
