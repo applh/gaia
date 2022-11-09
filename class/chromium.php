@@ -9,7 +9,9 @@ class chromium
         $targetUrl = $url ?? "";
         $w ??= 1680;
         $h ??= 2160;
-        $timeout ??= 120000;
+        $timeout ??= 60000;
+        $sleep ??= 5;
+        $retry_max ??= 100;
 
         // debug
         echo "(targetUrl: $targetUrl)(timeout: $timeout)";
@@ -48,6 +50,21 @@ class chromium
             // $page->navigate($targetUrl)->waitForNavigation(HeadlessChromium\Page::NETWORK_IDLE, $timeout);
             $page->navigate($targetUrl)->waitForNavigation(HeadlessChromium\Page::LOAD, $timeout);
 
+            $retry = 0;
+            while ($retry < $retry_max) {
+                // evaluate script in the browser
+                $evaluation = $page->evaluate('document.querySelectorAll(".a-enter-vr-button").length;') ?? 0;
+
+                // wait for the value to return and get it
+                $value = $evaluation->getReturnValue($timeout);
+                echo "(value-$retry: $value)";
+                if ($value  > 0) {
+                    break;
+                }
+
+                sleep($sleep);
+                $retry++;
+            } 
             // evaluate script in the browser
             $evaluation = $page->evaluate('document.querySelectorAll(".a-enter-vr-button").forEach((e) => e.style.display = "none");') ?? "";
 

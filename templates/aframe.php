@@ -12,7 +12,7 @@
         <a-assets>
             <a-asset-item id="bottle" src="/media/glb/bottle.glb"></a-asset-item>
         </a-assets>
-        <a-entity gltf-model="#bottle" position="0 1 -1"></a-entity>
+        <a-entity gltf-model="#bottle" position="0 1 -2"></a-entity>
         <a-entity gltf-model="url(/media/glb/monsters.glb)" scale="1 1 1" animation-mixer="" position="0 0.1 -6"></a-entity>
         
         <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
