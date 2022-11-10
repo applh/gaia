@@ -138,4 +138,34 @@ class web
 
         return $mime;
     }
+
+    static function slides ($mdfile)
+    {
+        $blocs = os::markdown($mdfile);
+        // build section with each bloc content
+        $sections = [];
+        foreach ($blocs as $bloc) {
+            $title = $bloc["title"] ?? "";
+            $content = $bloc["content"] ?? "";
+
+            $sections[] = 
+            <<<html
+            <section data-markdown>
+                <textarea data-template>
+                $title
+
+                $content
+                </textarea>
+            </section>
+            html;
+        }
+        // join sections
+        $sections = implode("", $sections);
+
+        echo $sections;
+
+        // return sections
+        return $sections;
+
+    }
 }

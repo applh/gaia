@@ -117,11 +117,21 @@ class chromium
         }
 
         // convert to pdf
-        $target_pdf= "$path_data/$pdf_prefix-$now.pdf";
-        $cmd = "convert $path_data/screenshot-$now-*.png $target_pdf";
-        echo "(cmd: $cmd)";
-        $output = shell_exec($cmd);
-        echo "(output: $output)";
+        if ($pdf_prefix) {
+            $target_pdf= "$path_data/$pdf_prefix-$now.pdf";
+            $cmd = "convert $path_data/screenshot-$now-*.png $target_pdf";
+            echo "(cmd: $cmd)";
+            $output = shell_exec($cmd);
+            echo "(output: $output)";
+        }
 
+        // convert to movie
+        if ($movie_prefix) {
+            $target_movie= "$path_data/$movie_prefix-$now.mp4";
+            $cmd = "ffmpeg -framerate 1 -i $path_data/screenshot-$now-%d.png -c:v libx264 -r 30 -pix_fmt yuv420p $target_movie";
+            echo "(cmd: $cmd)";
+            $output = shell_exec($cmd);
+            echo "(output: $output)";
+        }
     }
 }

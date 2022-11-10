@@ -29,6 +29,9 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 
+
+				<?php web::slides("pages/project-blog.md") ?>
+
 				<section>
 					<h2>G.A.I.A</h2>
 					<p>
@@ -42,7 +45,7 @@
 						Load only the application you need
 					</p>
 				</section>
-
+				
 			</div>
 
 		</div>

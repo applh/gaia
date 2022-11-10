@@ -12,10 +12,10 @@ class os
 {
     //@start_class
 
-    static function markdown ()
+    static function markdown ($mdfile = null)
     {
         // $file = gaia::kv("path_data") . "/pages/project-blog.md";
-        $file = gaia::kv("os/markdown/file") ?? "";
+        $file = $mdfile ?? gaia::kv("os/markdown/file") ?? "";
         $file = gaia::kv("path_data") . "/$file";
 
         // if file exists then read it
@@ -62,12 +62,14 @@ class os
             $blocs["$last_title"]["content"] = implode("", array_slice($lines, $last_title+1));
             
             // debug
-            print_r($titles);
+            // print_r($titles);
 
             gaia::kv("os/markdown/titles", $titles);
             gaia::kv("os/markdown/blocs", $blocs);
 
         }
+
+        return $blocs;
     }
 
     //@end_class
