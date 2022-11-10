@@ -11,7 +11,7 @@ class chromium
         $h ??= 2160;
         $timeout ??= 60000;
         $sleep ??= 5;
-        $retry_max ??= 100;
+        $retry_max ??= 0;
 
         // debug
         echo "(targetUrl: $targetUrl)(timeout: $timeout)";
