@@ -16,9 +16,11 @@ class web
         // debug line
 
         $uri = $_SERVER["REQUEST_URI"] ?? "";
+        extract(parse_url($uri));
+        $path = $path ?? "";
         $now = date("ymd-His");
 
-        if ($uri == "/gitpull") {
+        if ($path == "/gitpull") {
             $infos = [];
 
             // path root
@@ -37,32 +39,22 @@ class web
             header("Content-Type: application/json");
             echo json_encode($infos, JSON_PRETTY_PRINT);
         }
-        elseif ($uri == "/aframe") {
+        elseif ($path == "/aframe") {
             // load template file templates/home.php
             require __DIR__ . "/../templates/aframe.php";
         }
-        elseif ($uri == "/show") {
+        elseif ($path == "/show") {
             // load template file templates/home.php
             require __DIR__ . "/../templates/revealjs.php";
+        }
+        elseif ($path == "/robots.txt") {
+            // load template file templates/home.php
+            require __DIR__ . "/../templates/robots.php";
         }
         else {
             // load template file templates/home.php
             require __DIR__ . "/../templates/home.php";
         }
-        // // get the request
-        // $request = request::get();
-
-        // // get the route
-        // $route = route::get($request);
-
-        // // get the controller
-        // $controller = controller::get($route);
-
-        // // get the response
-        // $response = response::get($controller);
-
-        // // send the response
-        // response::send($response);
     }
 
     static function check_asset ()
