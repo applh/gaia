@@ -102,6 +102,7 @@ class chromium
         $w ??= 1680;
         $h ??= 2160;
         $pdf_prefix ??= "";
+        $chromium_exe ??= "chromium";
         $chromium_options ??= "";
 
         $now = date("ymd-His");
@@ -112,7 +113,7 @@ class chromium
             $md5 = md5($url);
             $targetFile = "$path_data/screenshot-$now-$index.png";
             // $cmd = "chromium --headless --window-size=$w,$h --run-all-compositor-stages-before-draw --virtual-time-budget=10000 --screenshot=$targetFile $url";
-            $cmd = "chromium --headless --window-size=$w,$h --run-all-compositor-stages-before-draw $chromium_options --screenshot=$targetFile $url";
+            $cmd = "$chromium_exe --headless --disable-gpu --window-size=$w,$h --run-all-compositor-stages-before-draw $chromium_options --screenshot=$targetFile $url";
             echo "(cmd: $cmd)";
             $output = shell_exec($cmd);
             echo "(output: $output)";

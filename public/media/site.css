@@ -36,6 +36,50 @@ img {
     aspect-ratio: 2/1;
 }
 
+/* CSS3: width depending on number of siblings */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+/* one item */
+.col:first-child:nth-last-child(1) {
+/* -or- li:only-child { */
+    width: 100%;
+}
+
+/* two items */
+.col:first-child:nth-last-child(2),
+.col:first-child:nth-last-child(2) ~ .col {
+    width: calc(100% / 2);
+}
+
+/* three items */
+.col:first-child:nth-last-child(3),
+.col:first-child:nth-last-child(3) ~ .col {
+    width: calc(100% / 3);
+}
+
+/* four items */
+.col:first-child:nth-last-child(4),
+.col:first-child:nth-last-child(4) ~ .col {
+    width: calc(100% / 4);
+}
+
+/* five items */
+.col:first-child:nth-last-child(5),
+.col:first-child:nth-last-child(5) ~ .col {
+    width: calc(100% / 5);
+}
+/* six items */
+.col:first-child:nth-last-child(6),
+.col:first-child:nth-last-child(6) ~ .col {
+    width: calc(100% / 6);
+}
+.col {
+    width: calc(100% / 6);
+    text-align: center; 
+}
+
 /* RESPONSIVE MEDIA QUERIES */
 @media screen and (min-width: 800px) {
     /* flexbox */
