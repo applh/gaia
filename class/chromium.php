@@ -13,6 +13,13 @@ class chromium
         $sleep ??= 5;
         $retry_max ??= 0;
 
+        // load multiple urls
+        $urls ??= [];
+        if (count($urls) > 0) {
+            chromium::web_multiple($urls);
+            return;
+        }
+
         // debug
         echo "(targetUrl: $targetUrl)(timeout: $timeout)";
         // if targetUrl is not set then exit
@@ -86,6 +93,35 @@ class chromium
         } finally {
             $browser->close();
         }
+
+    }
+
+    static function web_multiple ($urls)
+    {
+        extract(cli::param_json(2));
+        $w ??= 1680;
+        $h ??= 2160;
+        $pdf_prefix ??= "";
+
+        $now = date("ymd-His");
+        // path root
+        $path_data = gaia::kv("path_data");
+
+        foreach ($urls as $index => $url) {
+            $md5 = md5($url);
+            $targetFile = "$path_data/screenshot-$now-$index.png";
+            $cmd = "chromium --headless --window-size=$w,$h --screenshot=$targetFile $url";
+            echo "(cmd: $cmd)";
+            $output = shell_exec($cmd);
+            echo "(output: $output)";
+        }
+
+        // convert to pdf
+        $target_pdf= "$path_data/$pdf_prefix-$now.pdf";
+        $cmd = "convert $path_data/screenshot-$now-*.png $target_pdf";
+        echo "(cmd: $cmd)";
+        $output = shell_exec($cmd);
+        echo "(output: $output)";
 
     }
 }
