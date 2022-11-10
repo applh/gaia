@@ -29,9 +29,13 @@ class server
         // $cmd = "php -S localhost:8000 -t /var/www/html/gaia -d display_errors=1 -d error_reporting=E_ALL -d error_log=/var/www/html/gaia/my-data/error.log -d log_errors=1 -d error_prepend_string='[gaia] ' -d error_append_string='";
 
         // get path root
-        $path_root = gaia::kv("root");    
+        $path_root = gaia::kv("root");   
+        $path_public = "$path_root/public";
+
+        // change local path
+        chdir($path_public);
         // PHP local server by router script    
-        $cmd = "php -S localhost:8000 $path_root/public/index.php";
+        $cmd = "php -S localhost:8000 $path_public/index.php";
 
         // launch shell command
         $output = shell_exec($cmd);
