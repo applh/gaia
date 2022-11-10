@@ -21,10 +21,13 @@ class web
         if ($uri == "/gitpull") {
             $infos = [];
 
-            echo "(hello world: $uri)($now)";
-            // execute git pull
-            // `git pull`;
-            $output = shell_exec("git pull");
+            // path root
+            $path_root = gaia::kv("root");
+            // change local path and execute git pull
+            chdir($path_root);
+            $cmd = "git pull";
+            $output = shell_exec($cmd);
+
             // return json data
             $infos["now"] = $now;
             $infos["uri"] = $uri;
@@ -82,6 +85,8 @@ class web
                 $mime = web::mime($ext);
                 // set header
                 header("Content-Type: $mime");
+                // set header cache
+                header("Cache-Control: public, max-age=31536000");
                 // read file
                 readfile($path_file);
                 // exit
@@ -97,6 +102,7 @@ class web
         static $mimes = [
             "css" => "text/css",
             "js" => "application/javascript",
+            "mjs" => "application/javascript",
             "json" => "application/json",
             "webp" => "image/webp",
             "png" => "image/png",
@@ -123,7 +129,7 @@ class web
             "avi" => "video/x-msvideo",
             "php" => "text/plain",
         ];
-        
+
         $mime = $mimes[$ext] ?? "application/octet-stream";
 
         return $mime;
