@@ -18,43 +18,44 @@ class web
         $uri = $_SERVER["REQUEST_URI"] ?? "";
         extract(parse_url($uri));
         $path = $path ?? "";
+        // special case for root
+        if ($path == "/") {
+            $path = "/index.php";
+        }
         $now = date("ymd-His");
 
-        if ($path == "/gitpull") {
-            $infos = [];
+        // path root
+        $path_root = gaia::kv("root");
 
-            // path root
-            $path_root = gaia::kv("root");
-            // change local path and execute git pull
-            chdir($path_root);
-            $cmd = "git pull";
-            $output = shell_exec($cmd);
+        $path = trim($path, "/");
+        extract(pathinfo($path));
 
-            // return json data
-            $infos["now"] = $now;
-            $infos["uri"] = $uri;
-            $infos["output"] = $output;
+        $dirname = $dirname ?? "";
+        $filename = $filename ?? "";
+        $extension = $extension ?? "";
 
-            // return json data
-            header("Content-Type: application/json");
-            echo json_encode($infos, JSON_PRETTY_PRINT);
-        }
-        elseif ($path == "/aframe") {
-            // load template file templates/home.php
-            require __DIR__ . "/../templates/aframe.php";
-        }
-        elseif ($path == "/show") {
-            // load template file templates/home.php
-            require __DIR__ . "/../templates/revealjs.php";
-        }
-        elseif ($path == "/robots.txt") {
-            // load template file templates/home.php
-            require __DIR__ . "/../templates/robots.php";
-        }
-        else {
-            // load template file templates/home.php
-            require __DIR__ . "/../templates/home.php";
-        }
+        // routes
+        $routes = gaia::kv("routes") ?? [
+            "index" => "home.php",
+            "api" => "api.php",
+            "aframe" => "aframe.php",
+            "show" => "revealjs.php",
+            "robots" => "robots.php",
+            "gitpull" => "gitpull.php",            
+        ];
+
+        // check if route exists
+        $template = $routes[$filename] ?? "404.php";
+        // check if template exists
+        $templateFile = "$path_root/templates/$template";
+        // if template exists then include it
+        if (file_exists($templateFile)) {
+            include($templateFile);
+        } else {
+            // if template does not exist then return 404
+            // header("HTTP/1.0 404 Not Found");
+            // echo "404 Not Found";
+        }        
     }
 
     static function check_asset ()
