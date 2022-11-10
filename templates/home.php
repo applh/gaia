@@ -226,7 +226,7 @@
 
         // add vuejs app from CDN
         import * as vue
-        from "https://cdn.jsdelivr.net/npm/vue/dist/vue.esm-browser.js";
+        from "https://cdn.jsdelivr.net/npm/vue/dist/vue.esm-browser.min.js";
 
         const App = vue.defineComponent({
             template: "#appTemplate",
