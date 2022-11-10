@@ -41,6 +41,10 @@ class web
             // load template file templates/home.php
             require __DIR__ . "/../templates/aframe.php";
         }
+        elseif ($uri == "/show") {
+            // load template file templates/home.php
+            require __DIR__ . "/../templates/revealjs.php";
+        }
         else {
             // load template file templates/home.php
             require __DIR__ . "/../templates/home.php";
