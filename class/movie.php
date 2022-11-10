@@ -87,15 +87,9 @@ class movie
 
             $page_number = $frame_index+1;
 
-            $text = <<<txt
-
-            $slide_content
-
-            txt;
-
             // ---------*---------*---------*---------*---------*
 
-            movie::text_center($frame_file, $slide_title, $text, $page_number, $width, $height);
+            movie::text_center($frame_file, $slide_title, $slide_content, $page_number, $width, $height);
 
         }
 
@@ -108,6 +102,21 @@ class movie
 
     static function text_center ($frame_file, $title, $text, $footer, $width, $height)
     {
+        // find lines in text starting with ![*](*)
+        $lines = explode(PHP_EOL, $text);
+        $images = [];
+        foreach($lines as $line_index => $line) {
+            if (preg_match("/^!\[([^\]]*)\]\(([^\)]*)\)/", $line, $matches)) {
+                $images[] = [
+                    "title" => $matches[1],
+                    "url" => $matches[2],
+                ];
+                unset($lines[$line_index]);
+            }
+        }
+        // rebuild text
+        $text = implode(PHP_EOL, $lines);
+
         static $earth = null;
         if (!$earth) {
             // fill the frame with image pages/earth-night.jpg
@@ -163,6 +172,28 @@ class movie
         imagettftext($frame, $font_size, 0, $text_x, 6*$font_size, $white, $font, $text);
         // footer
         imagettftext($frame, $font_size-10, 0, $text_x, $height-2*$font_size, $white, $font, $footer);
+
+        // images
+        $image_y = max(0.5 * $width, $text_height + 8*$font_size);
+        foreach($images as $image) {
+            $image_path = $image["url"];
+            $image_title = $image["title"];
+            // prefix with path_data if not absolute
+            if (substr($image_path, 0, 1) != "/") {
+                $path_data = gaia::kv("path_data");
+                $image_path = "$path_data/pages/$image_path";
+            }
+            $image = imagecreatefromstring(file_get_contents($image_path));
+            $image_w = imagesx($image);
+            $image_h = imagesy($image);
+            $image_ratio = $image_h / $image_w;
+            $image_h2 = round($width * $image_ratio);
+            imagecopyresampled($frame, $image, 0, $image_y, 0, 0, $width, $image_h2, $image_w, $image_h);
+            $image_y += $image_h + $font_size;
+
+            // destroy image
+            imagedestroy($image);
+        }
 
         // save alpha channel
         imagesavealpha($frame, true);
