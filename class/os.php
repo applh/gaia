@@ -18,12 +18,13 @@ class os
         $file = $mdfile ?? gaia::kv("os/markdown/file") ?? "";
         $file = gaia::kv("path_data") . "/$file";
 
+        $blocs = [];
+
         // if file exists then read it
         if ($file && file_exists($file))
         {
             $lines = file($file);
             $titles = [];
-            $blocs = [];
 
             // loop each line and select lines starting with #
             $last_title = 0;
