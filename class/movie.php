@@ -129,17 +129,16 @@ class movie
 
         // create the frame
         $frame = imagecreatetruecolor($width, $height);
+        // alpha
+        imagealphablending($frame, true);
 
-        $transparent = imagecolorallocatealpha($frame, 255, 255, 255, 127);
+        $transparent = imagecolorallocatealpha($frame, 0, 0, 0, 127);
         $trans100 = imagecolorallocatealpha($frame, 0, 0, 0, 100);
+        $trans80 = imagecolorallocatealpha($frame, 0, 0, 0, 80);
         $black = imagecolorallocatealpha($frame, 0, 0, 0, 0);
         $white = imagecolorallocatealpha($frame, 255, 255, 255, 0);
         $red = imagecolorallocatealpha($frame, 255, 0, 0, 0);
         
-        // fill the frame with a color
-        // imagefill($frame, 0, 0, $transparent);
-        // imagefill($frame, 0, 0, $black);
-
         // imagecopy($frame, $earth, 0, 0, 0, 0, 1680, 2160);
         // image copy resampled with full width 
         if ($earth) {
@@ -149,7 +148,8 @@ class movie
             $dst_h = $width * $earth_ratio;
 
             imagecopyresampled($frame, $earth, 0, 0, 0, 0, $width, $dst_h, $earth_w, $earth_h);    
-            imagefill($frame, 0, 0, $trans100);
+            // rectangle fill with color trans80
+            imagefilledrectangle($frame, 0, 0, $width, $height, $trans100);
         }
 
         $font = gaia::kv("movie/font");

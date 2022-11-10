@@ -2,6 +2,40 @@
 
 GeoCMS Artificial Intelligence Applications
 
+## TOOLKIT
+
+* GAIA is a toolkit for PHP developers
+
+* Start a PHP local web server 
+
+```
+php gaia.php server::run
+
+```
+
+* Create an empty class file
+
+```
+php gaia.php code::write MyClass
+
+```
+
+* Launch a headless browser and take screenshot
+  * parameters are stored in JSON files
+
+```
+php gaia.php chromium::web my-data/web-001.json
+
+```
+
+* CMS (under construction...)
+  * OnePage
+  * Small Business
+  * Blog
+  * CMS
+  * Marketplace
+
+  
 ## Application Streaming
 
 * Shortest path from coder to user

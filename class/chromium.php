@@ -2,7 +2,7 @@
 
 class chromium
 {
-    static function test ()
+    static function web ()
     {
         echo "(chromium test method)";
         extract(cli::param_json(2));
