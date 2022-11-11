@@ -52,7 +52,7 @@
                 </picture>
             </section>
         </section>
-        <section class="s2">
+        <section class="s2 x3col">
             <h2>title 2C</h2>
             <p>content2</p>
             <picture>
@@ -80,42 +80,7 @@
                 </picture>
             </section>
         </section>
-        <section class="s2">
-            <h2>title 2C</h2>
-            <p>content2</p>
-            <picture>
-                <img src="/media/images/code.jpg" alt="code" class="ar50">
-            </picture>
-            <section class="s3">
-                <h3>title3</h3>
-                <p>content3</p>
-                <picture>
-                    <img src="/media/images/code.jpg" alt="code" class="ar50">
-                </picture>
-            </section>
-            <section class="s3">
-                <h3>title3</h3>
-                <p>content3</p>
-                <picture>
-                    <img src="/media/images/code.jpg" alt="code" class="ar50">
-                </picture>
-            </section>
-            <section class="s3">
-                <h3>title3</h3>
-                <p>content3</p>
-                <picture>
-                    <img src="/media/images/code.jpg" alt="code" class="ar50">
-                </picture>
-            </section>
-            <section class="s3">
-                <h3>title3</h3>
-                <p>content3</p>
-                <picture>
-                    <img src="/media/images/code.jpg" alt="code" class="ar50">
-                </picture>
-            </section>
-        </section>
-        <section class="s2">
+        <section class="s2 x4col">
             <h2>title 2C</h2>
             <p>content2</p>
             <picture>
@@ -149,6 +114,41 @@
                     <img src="/media/images/code.jpg" alt="code" class="ar50">
                 </picture>
             </section>
+        </section>
+        <section class="s2 x5col">
+            <h2>title 2C</h2>
+            <p>content2</p>
+            <picture>
+                <img src="/media/images/code.jpg" alt="code" class="ar50">
+            </picture>
+            <section class="s3">
+                <h3>title3</h3>
+                <p>content3</p>
+                <picture>
+                    <img src="/media/images/code.jpg" alt="code" class="ar50">
+                </picture>
+            </section>
+            <section class="s3">
+                <h3>title3</h3>
+                <p>content3</p>
+                <picture>
+                    <img src="/media/images/code.jpg" alt="code" class="ar50">
+                </picture>
+            </section>
+            <section class="s3">
+                <h3>title3</h3>
+                <p>content3</p>
+                <picture>
+                    <img src="/media/images/code.jpg" alt="code" class="ar50">
+                </picture>
+            </section>
+            <section class="s3">
+                <h3>title3</h3>
+                <p>content3</p>
+                <picture>
+                    <img src="/media/images/code.jpg" alt="code" class="ar50">
+                </picture>
+            </section>
             <section class="s3">
                 <h3>title3</h3>
                 <p>content3</p>
@@ -157,7 +157,7 @@
                 </picture>
             </section>
         </section>
-        <section class="s2">
+        <section class="s2 x6col">
             <h2>title 2C</h2>
             <p>content2</p>
             <picture>
@@ -265,13 +265,52 @@
     <!-- VUEJS TEMPLATE -->
     <template id="appTemplate">
         <h3>{{ message }}</h3>
+        <av-admin-sm v-if="window_w < 800"></av-admin-sm>
+        <av-admin-md v-else-if="window_w < 1600"></av-admin-md>
+        <av-admin-lg v-else-if="window_w < 2400"></av-admin-lg>
+        <av-admin-xl v-else></av-admin-xl>
+    </template>
+
+    <template id="temp">
+        <h3>{{ message }}</h3>
+        <av-admin-sm v-if="window_w < 800"></av-admin-sm>
+        <av-admin-md v-else-if="window_w < 1600"></av-admin-md>
+        <av-admin-lg v-else-if="window_w < 2400"></av-admin-lg>
+        <av-admin-xl v-else></av-admin-xl>
     </template>
 
     <!-- VUEJS INIT -->
     <script type="module">
         // store my reactive data
         let appData = {
+            window_w: window.innerWidth,
+            window_h: window.innerHeight,
             message: 'Vue is everywhere!'
+        }
+
+        let created = function () {
+            console.log('created');
+
+            // WARNING: REGISTER COMPONENTS BEFORE MOUNTING
+            [ 'admin-sm', 'admin-md', 'admin-lg', 'admin-xl', 'form', 'test', 'titi', 'tutu' ]
+                .forEach(function(name){
+                    app.component(
+                        'av-' + name,
+                        vue.defineAsyncComponent(() => import(`/vue/av-${name}.js`))
+                    );
+                });
+        }
+
+        let mounted = function () {
+            console.log('mounted');
+
+
+            // add resize event listener
+            window.addEventListener('resize', () => {
+                    this.window_w = window.innerWidth;
+                    this.window_h = window.innerHeight;
+                    this.message = '' + this.window_w + 'x' + this.window_h;
+                });
         }
 
         // add vuejs app from CDN
@@ -281,8 +320,12 @@
         const App = vue.defineComponent({
             template: "#appTemplate",
             data: () => appData,
+            created,
+            mounted
         });
-        vue.createApp(App).mount("#appContainer");
+
+        let app = vue.createApp(App);
+        app.mount("#appContainer");
     </script>
 </body>
 
