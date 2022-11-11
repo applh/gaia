@@ -5,7 +5,7 @@ class chromium
     static function web ()
     {
         echo "(chromium test method)";
-        extract(cli::param_json(2));
+        extract(cli::param_json(2)?? []);
         $targetUrl = $url ?? "";
         $w ??= 1680;
         $h ??= 2160;
@@ -105,6 +105,10 @@ class chromium
         $chromium_exe ??= "chromium";
         $chromium_options ??= "";
         $slide_duration ??= 1;
+        $urls ??= [];
+
+        $urls_max ??= count($urls);
+        $urls_min ??= 0;
 
         $now = date("ymd-His");
         // path root
@@ -114,15 +118,30 @@ class chromium
         $path_frames = "$path_data/movies/frames-$now";
         mkdir($path_frames, 0777, true);
 
-        foreach ($urls as $index => $url) {
-            $md5 = md5($url);
+        $concat = "";
+        for ($index=$urls_min; $index < $urls_max; $index++) {
+            $url = $urls[$index];
+
             $index3 = str_pad($index, 3, "0", STR_PAD_LEFT);
             $targetFile = "$path_frames/f-$now-$index3.png";
             // $cmd = "chromium --headless --window-size=$w,$h --run-all-compositor-stages-before-draw --virtual-time-budget=10000 --screenshot=$targetFile $url";
             $cmd = "$chromium_exe --headless --disable-gpu --window-size=$w,$h --run-all-compositor-stages-before-draw $chromium_options --screenshot=$targetFile $url";
-            echo "(cmd: $cmd)";
             $output = shell_exec($cmd);
-            echo "(output: $output)";
+
+            $concat .= "file 'f-$now-$index3.png'\n";
+            $concat .= "duration $slide_duration\n";
+
+            echo 
+            <<<txt
+            ---
+            (index: $index)
+            (url: $url)
+            (targetFile: $targetFile)
+            (cmd: $cmd)
+            (output: $output)
+            ---
+
+            txt;
         }
 
         // convert to pdf
@@ -138,12 +157,6 @@ class chromium
         if ($movie_prefix) {
             // build the concat file
             $concat_file = "$path_frames/concat-$now.txt";
-            $concat = "";
-            foreach ($urls as $index => $url) {
-                $index3 = str_pad($index, 3, "0", STR_PAD_LEFT);
-                $concat .= "file 'f-$now-$index3.png'\n";
-                $concat .= "duration $slide_duration\n";
-            }
             file_put_contents($concat_file, $concat);
 
             $target_movie= "$path_data/movies/$movie_prefix-$now.mp4";
