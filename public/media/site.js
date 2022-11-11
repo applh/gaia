@@ -11,13 +11,16 @@ let created = function () {
     console.log('created');
 
     // WARNING: REGISTER COMPONENTS BEFORE MOUNTING
-    ['admin-sm', 'admin-md', 'admin-lg', 'admin-xl', 'form', 'test', 'titi', 'tutu']
-        .forEach(function (name) {
+    let compos = appTemplate?.getAttribute("data-compos");
+    if (compos) {
+        compos = compos.split(' ');
+        compos.forEach(function (name) {
             app.component(
                 'av-' + name,
                 vue.defineAsyncComponent(() => import(`/vue/av-${name}.js`))
             );
         });
+    }
 }
 
 let mounted = function () {
@@ -31,17 +34,40 @@ let mounted = function () {
     });
 
     this.test('test1')
+    this.message = '' + this.window_w + 'x' + this.window_h;
+
+    // test api
+    this.api({
+        m: 'stat',
+        message: this.message,
+    });
 }
 
 let methods = {
-    test (msg='') {
+    async api(inputs) {
+        let formData = new FormData();
+        // add inputs to FormData
+        for (let key in inputs) {
+            formData.append(key, inputs[key]);
+        }
+        // send request
+        let response = await fetch('/api', {
+            method: 'POST',
+            body: formData
+        });
+
+        let data = await response.json();
+        console.log(data);
+        return data;
+    },
+    test(msg = '') {
         console.log('HELLO FROM APP: ' + msg);
     }
 }
 
 // add vuejs app from CDN
 import * as vue
-    from "/media/vue.esm-browser.min.js";
+    from "/media/vue.esm-browser.prod.js";
 
 const compoApp = vue.defineComponent({
     template: "#appTemplate",

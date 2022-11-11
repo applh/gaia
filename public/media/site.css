@@ -36,11 +36,25 @@ img {
     aspect-ratio: 2/1;
 }
 
-/* CSS3: width depending on number of siblings */
 .row {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-evenly;
 }
+
+.pad1 {
+    padding: 1rem;
+}
+.pad2 {
+    padding: 2rem;
+}
+.pad3 {
+    padding: 3rem;
+}
+.pad4 {
+    padding: 4rem;
+}
+/* CSS3: width depending on number of siblings */
 /* one item */
 .col:first-child:nth-last-child(1) {
 /* -or- li:only-child { */

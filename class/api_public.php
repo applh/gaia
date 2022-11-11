@@ -17,6 +17,12 @@ class api_public
         return "(test)";
     }
 
+    static function stat ()
+    {
+        $message = os::input("message");
+        return "(stat) $message";
+    }
+
     //@end_class
 }
 
