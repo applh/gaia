@@ -3,20 +3,30 @@
 class web
 {
     // run the web application
-    static function run ()
+    static function run()
     {
         ob_start();
 
+        // domain setup
+        web::domain_setup();
+
         // router script
+        $found = false;
         if (php_sapi_name() == 'cli-server') {
-            $res = web::check_asset();
-            if ($res) {
-                return;
-            }
+            $found = web::check_asset();
         }
 
-        // debug line
+        if (!$found) {
+            $found = web::load_template();
+        }
 
+        $code = ob_get_clean();
+        os::debug_headers();
+        echo $code;
+    }
+
+    static function load_template ()
+    {
         $uri = $_SERVER["REQUEST_URI"] ?? "";
         extract(parse_url($uri));
         $path = $path ?? "";
@@ -39,8 +49,7 @@ class web
 
         if ($dirname) {
             $parts = explode("/", $dirname);
-        }
-        else {
+        } else {
             $parts = [];
         }
 
@@ -55,16 +64,13 @@ class web
             $routes = gaia::kv("routes") ?? [
                 "index" => "home.php",
                 "api" => "api.php",
-                "aframe" => "aframe.php",
-                "show" => "revealjs.php",
                 "robots" => "robots.php",
-                "gitpull" => "gitpull.php",            
+                "gitpull" => "gitpull.php",
             ];
 
             // check if route exists
             $template = $routes[$filename] ?? "404.php";
-        }
-        else {
+        } else {
             // dynamic routes
             $dir0 = $parts[0] ?? "";
             $dir1 = $parts[1] ?? $filename; //FIXME
@@ -89,13 +95,31 @@ class web
             // header("HTTP/1.0 404 Not Found");
             // echo "404 Not Found";
         }
-        
-        $code = ob_get_clean();
-        os::debug_headers();
-        echo $code;
+
     }
 
-    static function check_asset ()
+    static function domain_setup()
+    {
+        // get the domain name
+        $domain = $_SERVER["HTTP_HOST"] ?? "";
+
+        $domain_routes = gaia::kv("domain/routes") ?? [];
+
+        $domain2 = $domain_routes[$domain] ?? "";
+
+        // get the domain config
+        $path_root = gaia::kv("root");
+        // change special chars to -
+        $domcode = strtolower($domain2);
+        $domcode = preg_replace("/[^a-z0-9]/", "-", $domcode);
+        $path_setup = "$path_root/my-data/domain-$domcode/setup.php";
+        // load the config file config.php if it exists
+        if (file_exists($path_setup)) {
+            include $path_setup;
+        }
+    }
+
+    static function check_asset()
     {
         // TODO: IMPROVE THIS FUNCTION
         $uri = $_SERVER["REQUEST_URI"] ?? "";
@@ -130,7 +154,7 @@ class web
         return false;
     }
 
-    static function mime ($ext)
+    static function mime($ext)
     {
         // return the mime type depending on the file extension
         static $mimes = [
@@ -169,7 +193,7 @@ class web
         return $mime;
     }
 
-    static function slides ()
+    static function slides()
     {
         $mdfile = gaia::kv("web/slides") ?? "pages/project-blog.md";
 
@@ -180,8 +204,8 @@ class web
             $title = $bloc["title"] ?? "";
             $content = $bloc["content"] ?? "";
 
-            $sections[] = 
-            <<<html
+            $sections[] =
+                <<<html
             <section data-markdown>
                 <textarea data-template>
                 $title
@@ -198,6 +222,5 @@ class web
 
         // return sections
         return $sections;
-
     }
 }
