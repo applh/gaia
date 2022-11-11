@@ -223,4 +223,9 @@ class web
         // return sections
         return $sections;
     }
+
+    static function v ($name, $default = "")
+    {
+        echo gaia::kv($name) ?? $default;
+    }
 }
