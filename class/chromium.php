@@ -104,14 +104,20 @@ class chromium
         $pdf_prefix ??= "";
         $chromium_exe ??= "chromium";
         $chromium_options ??= "";
+        $slide_duration ??= 1;
 
         $now = date("ymd-His");
         // path root
         $path_data = gaia::kv("path_data");
 
+        // create folder
+        $path_frames = "$path_data/movies/frames-$now";
+        mkdir($path_frames, 0777, true);
+
         foreach ($urls as $index => $url) {
             $md5 = md5($url);
-            $targetFile = "$path_data/screenshot-$now-$index.png";
+            $index3 = str_pad($index, 3, "0", STR_PAD_LEFT);
+            $targetFile = "$path_frames/f-$now-$index3.png";
             // $cmd = "chromium --headless --window-size=$w,$h --run-all-compositor-stages-before-draw --virtual-time-budget=10000 --screenshot=$targetFile $url";
             $cmd = "$chromium_exe --headless --disable-gpu --window-size=$w,$h --run-all-compositor-stages-before-draw $chromium_options --screenshot=$targetFile $url";
             echo "(cmd: $cmd)";
@@ -121,8 +127,8 @@ class chromium
 
         // convert to pdf
         if ($pdf_prefix) {
-            $target_pdf= "$path_data/$pdf_prefix-$now.pdf";
-            $cmd = "convert $path_data/screenshot-$now-*.png $target_pdf";
+            $target_pdf= "$path_frames/$pdf_prefix-$now.pdf";
+            $cmd = "convert $path_frames/f-$now-*.png $target_pdf";
             echo "(cmd: $cmd)";
             $output = shell_exec($cmd);
             echo "(output: $output)";
@@ -130,8 +136,20 @@ class chromium
 
         // convert to movie
         if ($movie_prefix) {
-            $target_movie= "$path_data/$movie_prefix-$now.mp4";
-            $cmd = "ffmpeg -framerate 1 -i $path_data/screenshot-$now-%d.png -c:v libx264 -r 30 -pix_fmt yuv420p $target_movie";
+            // build the concat file
+            $concat_file = "$path_frames/concat-$now.txt";
+            $concat = "";
+            foreach ($urls as $index => $url) {
+                $index3 = str_pad($index, 3, "0", STR_PAD_LEFT);
+                $concat .= "file 'f-$now-$index3.png'\n";
+                $concat .= "duration $slide_duration\n";
+            }
+            file_put_contents($concat_file, $concat);
+
+            $target_movie= "$path_data/movies/$movie_prefix-$now.mp4";
+            // $cmd = "ffmpeg -framerate 1/$slide_duration -i $path_data/screenshot-$now-%d.png -c:v libx264 -r 30 -pix_fmt yuv420p $target_movie";
+            // $cmd = "ffmpeg -f concat -i $concat_file -c:v libx264 -pix_fmt yuv420p $target_movie";
+            $cmd = "ffmpeg -f concat -i $concat_file -c:v libx264 -pix_fmt yuv420p $target_movie";
             echo "(cmd: $cmd)";
             $output = shell_exec($cmd);
             echo "(output: $output)";

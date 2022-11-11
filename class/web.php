@@ -5,6 +5,8 @@ class web
     // run the web application
     static function run ()
     {
+        ob_start();
+
         // router script
         if (php_sapi_name() == 'cli-server') {
             $res = web::check_asset();
@@ -27,35 +29,70 @@ class web
         // path root
         $path_root = gaia::kv("root");
 
-        $path = trim($path, "/");
+        // $path = trim($path, "/");
         extract(pathinfo($path));
 
-        $dirname = $dirname ?? "";
+        $dirname = trim($dirname ?? "", "/");
+
         $filename = $filename ?? "";
         $extension = $extension ?? "";
 
-        // routes
-        $routes = gaia::kv("routes") ?? [
-            "index" => "home.php",
-            "api" => "api.php",
-            "aframe" => "aframe.php",
-            "show" => "revealjs.php",
-            "robots" => "robots.php",
-            "gitpull" => "gitpull.php",            
-        ];
+        if ($dirname) {
+            $parts = explode("/", $dirname);
+        }
+        else {
+            $parts = [];
+        }
 
-        // check if route exists
-        $template = $routes[$filename] ?? "404.php";
+        $nb_parts = count($parts);
+
+        $template = "";
+        // print_r($parts);
+        // var_dump($dirname);
+
+        if ($nb_parts == 0) {
+            // routes
+            $routes = gaia::kv("routes") ?? [
+                "index" => "home.php",
+                "api" => "api.php",
+                "aframe" => "aframe.php",
+                "show" => "revealjs.php",
+                "robots" => "robots.php",
+                "gitpull" => "gitpull.php",            
+            ];
+
+            // check if route exists
+            $template = $routes[$filename] ?? "404.php";
+        }
+        else {
+            // dynamic routes
+            $dir0 = $parts[0] ?? "";
+            $dir1 = $parts[1] ?? $filename; //FIXME
+
+            // TODO: better filter ?
+            $dir0 = os::filter("var", "", $dir0);
+
+            $callback = "route_$dir0::check";
+            if (is_callable($callback)) {
+                $dir1 = os::filter("var", "", $dir1);
+                $template = $callback($dir1, $filename, $extension);
+            }
+        }
+
         // check if template exists
         $templateFile = "$path_root/templates/$template";
         // if template exists then include it
-        if (file_exists($templateFile)) {
+        if (is_file($templateFile)) {
             include($templateFile);
         } else {
             // if template does not exist then return 404
             // header("HTTP/1.0 404 Not Found");
             // echo "404 Not Found";
-        }        
+        }
+        
+        $code = ob_get_clean();
+        os::debug_headers();
+        echo $code;
     }
 
     static function check_asset ()
@@ -132,8 +169,10 @@ class web
         return $mime;
     }
 
-    static function slides ($mdfile)
+    static function slides ()
     {
+        $mdfile = gaia::kv("web/slides") ?? "pages/project-blog.md";
+
         $blocs = os::markdown($mdfile);
         // build section with each bloc content
         $sections = [];

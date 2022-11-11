@@ -11,6 +11,7 @@
 class os
 {
     //@start_class
+    static $logs = [];
 
     static function markdown ($mdfile = null)
     {
@@ -77,8 +78,13 @@ class os
     // get request parameters
     static function input ($name, $default="")
     {
-        // get the value from the request
-        $value = $_REQUEST[$name] ?? $default;
+        if ($name) {
+            // get the value from the request
+            $value = $_REQUEST[$name] ?? $default;
+        }
+        else {
+            $value = $default;
+        }
         // return the value
         return $value;
     }
@@ -105,15 +111,21 @@ class os
 
     static function debug ($var=null)
     {
-        static $logs = [];
         if ($var) {
-            $logs[] = $var;
+            static::$logs[] = $var;
         }
         else {
-            return $logs;
+            return static::$logs;
         }
     }
 
+    static function debug_headers ()
+    {
+        foreach(static::$logs as $index => $log)
+        {
+            header("X-Debug-$index: $log");
+        }
+    }
     //@end_class
 }
 
