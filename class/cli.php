@@ -47,6 +47,7 @@ class cli
         if (file_exists($file)) {
             $json = file_get_contents($file);
             $result = json_decode($json, true);
+            $result ??= $default;
         }
 
         // return the json data

@@ -25,8 +25,8 @@
 			background: no-repeat center top fixed url('/media/images/earth-night.jpg');
 			background-size: contain;
 		}
-		.reveal pre code {
-			max-height: 1000px;
+		.reveal pre.code-wrapper > code {
+			max-height: 1200px;
 			padding: 2vmax;
 		}
 	

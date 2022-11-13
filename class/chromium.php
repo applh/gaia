@@ -120,28 +120,29 @@ class chromium
 
         $concat = "";
         for ($index=$urls_min; $index < $urls_max; $index++) {
-            $url = $urls[$index];
-
-            $index3 = str_pad($index, 3, "0", STR_PAD_LEFT);
-            $targetFile = "$path_frames/f-$now-$index3.png";
-            // $cmd = "chromium --headless --window-size=$w,$h --run-all-compositor-stages-before-draw --virtual-time-budget=10000 --screenshot=$targetFile $url";
-            $cmd = "$chromium_exe --headless --disable-gpu --window-size=$w,$h --run-all-compositor-stages-before-draw $chromium_options --screenshot=$targetFile $url";
-            $output = shell_exec($cmd);
-
-            $concat .= "file 'f-$now-$index3.png'\n";
-            $concat .= "duration $slide_duration\n";
-
-            echo 
-            <<<txt
-            ---
-            (index: $index)
-            (url: $url)
-            (targetFile: $targetFile)
-            (cmd: $cmd)
-            (output: $output)
-            ---
-
-            txt;
+            $url = trim($urls[$index] ?? "");
+            if ($url) {
+                $index3 = str_pad($index, 3, "0", STR_PAD_LEFT);
+                $targetFile = "$path_frames/f-$now-$index3.png";
+                // $cmd = "chromium --headless --window-size=$w,$h --run-all-compositor-stages-before-draw --virtual-time-budget=10000 --screenshot=$targetFile $url";
+                $cmd = "$chromium_exe --headless --disable-gpu --window-size=$w,$h --run-all-compositor-stages-before-draw $chromium_options --screenshot=$targetFile $url";
+                $output = shell_exec($cmd);
+    
+                $concat .= "file 'f-$now-$index3.png'\n";
+                $concat .= "duration $slide_duration\n";
+    
+                echo 
+                <<<txt
+                ---
+                (index: $index)
+                (url: $url)
+                (targetFile: $targetFile)
+                (cmd: $cmd)
+                (output: $output)
+                ---
+    
+                txt;    
+            }
         }
 
         // convert to pdf
@@ -166,6 +167,107 @@ class chromium
             echo "(cmd: $cmd)";
             $output = shell_exec($cmd);
             echo "(output: $output)";
+        }
+    }
+
+    static function read ()
+    {
+        extract(cli::param_json(2));
+
+        $w ??= 1680;
+        $h ??= 2160;
+        $timeout ??= 10000;
+
+        $targetUrl ??= "";
+        $codeJs ??= [];
+        $saveImages ??= false;
+
+        if (!$targetUrl) {
+            echo "targetUrl is required";
+            return;
+        }
+
+        // open a chromium browser
+        $browserFactory = new HeadlessChromium\BrowserFactory($browserExe ?? "chromium");
+
+        $browser = $browserFactory->createBrowser([
+            'windowSize'   => [$w, $h],
+        ]);
+        try {
+            // load the page and take screenshot
+            $page = $browser->createPage();
+            // $page->navigate($targetUrl)->waitForNavigation(HeadlessChromium\Page::NETWORK_IDLE, $timeout);
+            $page->navigate($targetUrl)->waitForNavigation(HeadlessChromium\Page::LOAD, $timeout);
+
+            $html = $page->getHtml();
+            // debug
+            // echo "$html";
+
+            $evaluations = [];
+            $results = [];
+
+            foreach ($codeJs as $code) {
+                // debug
+                echo "(code: $code)\n";
+                // evaluate script in the browser
+                $evaluation = $page->evaluate($code) ?? "";
+                $evaluations[] = $evaluation;
+                $results[] = $evaluation->getReturnValue($timeout);
+            }
+
+            $res = implode("\n", $results);
+
+            $res = strip_tags($res);
+            $res = str_replace("*", "\n\n", $res);
+            echo $res;
+
+            // save to file my-data/movies/news-%date%/content.txt
+            $path_data = gaia::kv("path_data");
+            $path_news = "$path_data/movies/news-".date("ymd-His");
+            mkdir($path_news, 0777, true);
+            $targetFile = "$path_news/content.txt";
+            file_put_contents($targetFile, $res);
+
+            if ($saveImages) {
+                // find all images urls ending with jpg, jpeg, png, webp in $res
+                $matches = [];
+                preg_match_all("/(https?:\/\/.*\.(?:jpg|jpeg|png|webp))/i", $res, $matches);
+                $images = $matches[1];
+                // debug
+                print_r($images);
+                // save images
+                $index = 0;
+                foreach ($images as $image) {
+                    $index++;
+                    $image = imagecreatefromstring(file_get_contents($image));
+                    // save the image in webp format in folder my-data/movies/webp
+                    $path_webp = "$path_data/movies/webp";
+                    // create folder if not exists
+                    if (!file_exists($path_webp)) {
+                        mkdir($path_webp, 0777, true);
+                    }
+                    $targetFile = "$path_news/image-$index.webp";
+                    // debug
+                    echo "($targetFile)\n";
+
+                    imagewebp($image, $targetFile);
+                    // md5 the image
+                    $md5 = md5_file($targetFile);
+                    // rename the image
+                    $targetWebp = "$path_webp/image-$md5.webp";
+                    // create the file if not exists
+                    if (!file_exists($targetWebp)) {
+                        rename($targetFile, $targetWebp);
+                    }
+                    else {
+                        // delete the file
+                        unlink($targetFile);
+                    }
+                }
+            }
+        }
+        finally {
+            $browser->close();
         }
     }
 }
