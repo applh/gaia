@@ -43,6 +43,73 @@ class server
         $output = shell_exec($cmd);
     }
 
+    static function script ()
+    {
+        // load json data from parameter file
+        $json = cli::param_json(2);
+        // debug
+        print_r($json);
+        extract($json);
+
+        $data ??= [];
+        $sync_dirs ??= [];
+
+        // upload all files in sync_dirs
+        $sync_files = [];
+        $upload_files = [];
+
+        foreach ($sync_dirs as $sync_dir) {
+            $path_data = gaia::kv("path_data");
+            // get all files in sync_dir
+            $files = glob("$path_data/$sync_dir/*");
+            // debug
+            print_r($files);
+            // upload all files
+            foreach ($files as $file) {
+                // get file name
+                $file_name = basename($file);
+                // debug
+                // echo "(file_name: $file_name)";
+                $sync_files[] = $file_name;
+                $upload_files[] = $file;
+
+                // upload file
+                // debug
+            }
+        }
+        // $data["sync_files"] = $sync_files;
+
+        // add upload files to Guzzle request
+        $form_parts = [];
+        foreach ($upload_files as $index => $file) {
+            $form_parts[] = [
+                "name" => "file$index",
+                "contents" => GuzzleHttp\Psr7\Utils::tryFopen($file, "r"),
+                "filename" => basename($file),
+            ];
+        }
+        // add each data to Guzzle request
+        foreach ($data as $key => $value) {
+            $form_parts[] = [
+                "name" => $key,
+                "contents" => $value,
+            ];
+        }
+
+        // send POST request with guzzle with uploads
+        $client = new GuzzleHttp\Client();
+        $response = $client->request("POST", $url, [
+            "multipart" => $form_parts,
+        ]);
+        // get response body
+        $body = $response->getBody();
+        // get response body as string
+        $body_string = $body->getContents();
+        // debug
+        echo $body_string;
+
+    }
+
     //@end_class
 }
 
