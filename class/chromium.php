@@ -223,9 +223,12 @@ class chromium
 
             // save to file my-data/movies/news-%date%/content.txt
             $path_data = gaia::kv("path_data");
-            $path_news = "$path_data/movies/news-".date("ymd-His");
-            mkdir($path_news, 0777, true);
-            $targetFile = "$path_news/content.txt";
+            $now = date("ymd-His");
+            $path_news = "$path_data/movies/news";
+            if (!is_dir($path_news)) {
+                mkdir($path_news, 0777, true);
+            }
+            $targetFile = "$path_news/content-$now.txt";
             file_put_contents($targetFile, $res);
 
             if ($saveImages) {
