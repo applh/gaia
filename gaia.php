@@ -40,7 +40,11 @@ class gaia
         spl_autoload_register('gaia::autoload');
 
         // install composer autoloader
-        require __DIR__ . "/vendor/autoload.php";
+        // require if file exists
+        $path_composer = __DIR__ .  "/vendor/autoload.php";
+        if (file_exists($path_composer)) {
+            require $path_composer;
+        }
     }
 
     static function autoload ($class)
