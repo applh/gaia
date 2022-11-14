@@ -26,6 +26,20 @@ class api_git
         return $res;
     }
 
+    static function status ()
+    {
+        // get the path to the git repository
+        $path_root = gaia::kv("root");
+        // set working directory
+        chdir($path_root);
+        // command line
+        $cmd = "git status";
+        // execute command line
+        $res = shell_exec($cmd) ?? "...";
+        // return result
+        return $res;
+    }
+
     //@end_class
 }
 
