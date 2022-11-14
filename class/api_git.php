@@ -22,6 +22,18 @@ class api_git
         $cmd = "git pull";
         // execute command line
         $res = shell_exec($cmd) ?? "...";
+        // NOT WORKING... wordops blocks the command line ???
+        // touch my-data/cron/todos/git-pull.md
+        $path_data = gaia::kv("path_data");
+        $path_todos = "$path_data/cron/todos";
+        // create the folder if it does not exist
+        if (!file_exists($path_todos)) {
+            mkdir($path_todos, 0777, true);
+        }
+        file_put_contents("$path_todos/git-pull.md", "git -v pull");
+        // chmod 666 my-data/cron/todos/git-pull.md
+        chmod("$path_todos/git-pull.md", 0666);
+
         // return result
         return $res;
     }
