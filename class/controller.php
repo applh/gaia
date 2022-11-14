@@ -17,6 +17,19 @@ class controller
         return true;
     }
 
+    static function git ()
+    {
+        $res = false;
+        $api_key = os::filter("var", "api_key");
+        $api_key_src = gaia::kv("api/git/api_key") ?? "";
+        // if api key is nit empty and match then return true
+        if ($api_key_src && ($api_key_src == $api_key)) {
+            $res = true;
+        }
+
+        return $res;
+    }
+
     static function admin()
     {
         $res = false;
