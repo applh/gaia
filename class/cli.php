@@ -86,6 +86,19 @@ class cli
             $cmd = file_get_contents($file);
             $cmd = trim($cmd);
             echo "(cmd: $cmd)";
+
+            // avoid blocking on long running process
+            // if file name starts with 0- then update date
+            // else move the file to done folder
+            if (substr(basename($file), 0, 2) == "0-") {
+                touch($file);
+            } else {
+                // move the file to done
+                $file_done = "$path_done/" . basename($file);
+                rename($file, $file_done);
+            }
+
+            // execute the command
             if ($cmd) {
                 ob_start();
 
@@ -102,15 +115,6 @@ class cli
                 $path_log = "$path_done/cron-$ymd.log";
                 $log = "($date) $cmd\n$res\n$out\n";
                 file_put_contents($path_log, $log, FILE_APPEND);
-            }
-            // if file name starts with 0- then update date
-            // else move the file to done folder
-            if (substr(basename($file), 0, 2) == "0-") {
-                touch($file);
-            } else {
-                // move the file to done
-                $file_done = "$path_done/" . basename($file);
-                rename($file, $file_done);
             }
         }
     }
