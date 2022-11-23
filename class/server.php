@@ -208,6 +208,53 @@ class server
         print_r($errors);
     }
 
+    static function upload_files ()
+    {
+        $url = gaia::kv("server/send/url") ?? "";
+        $search = gaia::kv("server/send/dir") ?? "";
+        $data_inputs = gaia::kv("server/send/data_inputs") ?? [];
+        $files = [];
+        if ($search) {
+            $path_data = gaia::kv("path_data");
+            $search2 = "$path_data/$search";
+            $files = glob($search2);
+            
+            print_r($files);    
+        }
+
+        if (!empty($files) && $url) {
+            // upload file by curl
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, true);
+
+            $nb_files = count($files);
+            foreach($files as $index => $file) {
+                $name = basename($file);
+                $ext = pathinfo($name, PATHINFO_EXTENSION);
+                        
+                // add data
+                $data = $data_inputs;
+                $data["file-$index"] = new CURLFile($file, 'image/' . $ext, $name);
+                print_r($data);
+                echo "(url($index/$nb_files):$url)\n";
+            
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);            
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $res = curl_exec($ch);
+                // get status code
+                $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                // get error
+                $error = curl_error($ch);
+                echo "$status|$error|$res";
+            
+            }
+            // close curl
+            curl_close($ch);
+     
+        }
+       
+    }
+
     //@end_class
 }
 

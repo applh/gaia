@@ -195,12 +195,14 @@ class web
 
     static function slides()
     {
+        $max_slide = gaia::kv("web/max_slide") ?? 100;
         $mdfile = gaia::kv("web/slides") ?? "pages/project-blog.md";
 
         $blocs = os::markdown($mdfile);
         // build section with each bloc content
         $sections = [];
-        foreach ($blocs as $bloc) {
+        $count = 0;
+        foreach ($blocs as $index => $bloc) {
             $title = $bloc["title"] ?? "";
             $content = $bloc["content"] ?? "";
 
@@ -214,6 +216,10 @@ class web
                 </textarea>
             </section>
             html;
+
+            $count++;
+            if ($count >= $max_slide)
+                break;
         }
         // join sections
         $sections = implode("", $sections);

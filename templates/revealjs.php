@@ -22,12 +22,15 @@
 	<link rel="stylesheet" href="/media/revealjs/plugin/highlight/monokai.css">
 	<style>
 		.reveal {
-			background: no-repeat center top fixed url('/media/images/earth-night.jpg');
+			background: no-repeat center top fixed url('/media/images/earth-night-1.jpg');
 			background-size: contain;
 		}
+
 		.reveal pre.code-wrapper > code {
 			max-height: 1200px;
 			padding: 2vmax;
+			font-size: 2rem;
+			line-height: 2.5rem;
 		}
 	
 	</style>
