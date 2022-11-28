@@ -5,10 +5,11 @@ class web
     // run the web application
     static function run()
     {
+
         ob_start();
 
-        // domain setup
-        web::domain_setup();
+        // load domain config
+        site::setup();
 
         // router script
         $found = false;
@@ -86,38 +87,11 @@ class web
         }
 
         // check if template exists
-        $templateFile = "$path_root/templates/$template";
+        $templateFile = site::template($filename, $template);
         // if template exists then include it
-        if (is_file($templateFile)) {
-            include($templateFile);
-        } else {
-            // if template does not exist then return 404
-            // header("HTTP/1.0 404 Not Found");
-            // echo "404 Not Found";
-        }
 
     }
 
-    static function domain_setup()
-    {
-        // get the domain name
-        $domain = $_SERVER["HTTP_HOST"] ?? "";
-
-        $domain_routes = gaia::kv("domain/routes") ?? [];
-
-        $domain2 = $domain_routes[$domain] ?? "";
-
-        // get the domain config
-        $path_root = gaia::kv("root");
-        // change special chars to -
-        $domcode = strtolower($domain2);
-        $domcode = preg_replace("/[^a-z0-9]/", "-", $domcode);
-        $path_setup = "$path_root/my-data/domain-$domcode/setup.php";
-        // load the config file config.php if it exists
-        if (file_exists($path_setup)) {
-            include $path_setup;
-        }
-    }
 
     static function check_asset()
     {
