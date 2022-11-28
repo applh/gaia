@@ -106,17 +106,19 @@ class chromium
         $chromium_options ??= "";
         $slide_duration ??= 1;
         $urls ??= [];
+        $path_data ??= gaia::kv("path_data");
+        $path_publish ??= "";
 
         $urls_max ??= count($urls);
         $urls_min ??= 0;
 
         $now = date("ymd-His");
         // path root
-        $path_data = gaia::kv("path_data");
 
         // create folder
         $path_frames = "$path_data/movies/frames-$now";
         mkdir($path_frames, 0777, true);
+        chmod($path_frames, 0777);
 
         $concat = "";
         for ($index=$urls_min; $index < $urls_max; $index++) {
@@ -124,6 +126,10 @@ class chromium
             if ($url) {
                 $index3 = str_pad($index, 3, "0", STR_PAD_LEFT);
                 $targetFile = "$path_frames/f-$now-$index3.png";
+                // FIXME: on linux, can't create file in /var/www/ ???
+                // touch($targetFile);
+                // chmod($targetFile, 0666);
+
                 // $cmd = "chromium --headless --window-size=$w,$h --run-all-compositor-stages-before-draw --virtual-time-budget=10000 --screenshot=$targetFile $url";
                 $cmd = "$chromium_exe --headless --disable-gpu --window-size=$w,$h --run-all-compositor-stages-before-draw $chromium_options --screenshot=$targetFile $url";
                 $output = shell_exec($cmd);
@@ -152,6 +158,12 @@ class chromium
             echo "(cmd: $cmd)";
             $output = shell_exec($cmd);
             echo "(output: $output)";
+
+            // copy to path_publish if set
+            if ($path_publish) {
+                $target_pdf_publish = "$path_publish/$pdf_prefix-$now.pdf";
+                copy($target_pdf, $target_pdf_publish);
+            }
         }
 
         // convert to movie
@@ -167,6 +179,12 @@ class chromium
             echo "(cmd: $cmd)";
             $output = shell_exec($cmd);
             echo "(output: $output)";
+
+            // copy to path_publish if set
+            if ($path_publish) {
+                $target_movie_publish = "$path_publish/$movie_prefix-$now.mp4";
+                copy($target_movie, $target_movie_publish);
+            }
         }
     }
 

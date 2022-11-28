@@ -126,6 +126,64 @@ class os
             header("X-Debug-$index: $log");
         }
     }
+
+    static function cache ($key, $value=null, $ttl=3600, $show=false)
+    {
+        static $path_cache = null;
+        static $now = null;
+
+        if ($path_cache == null) {
+            $now = time();
+            // path domain
+            $path_domain = gaia::kv("path_domain");
+            $path_cache = "$path_domain/cache";
+            // os::debug("cache($path_cache)($key, $ttl)");
+            // create cache folder if not exists
+            if (!is_dir($path_cache)) {
+                mkdir($path_cache, 0777, true);
+            }
+        }
+        // cache file
+        // md5($key) to avoid special characters in the filename
+        $key_md5 = md5($key);
+        $file = "$path_cache/tmp-$key_md5";
+        // if value is null then read the cache file
+        if ($value === null) {
+            // os::debug("cache_read($key_md5)");
+
+            // check ttl
+            if (file_exists($file)) {
+                if ($now < $ttl + filemtime($file)) {
+                    $value = file_get_contents($file);
+                    if ($show) {
+                        os::debug("cache_found($key_md5)");
+
+                        os::debug_headers();
+                        header("Cache-Control: public, max-age=31536000");
+                        echo $value;
+                    }
+                }
+                else {
+                    // WARNING: can be dangerous
+                    // delete the cache file if exists
+                    unlink($file);
+                }
+            }
+            else {
+                // os::debug("cache_not_found($key_md5)($file)");
+            }
+        }
+        // if value is not null then write the cache file
+        else {
+            os::debug("cache_write($key)($file)");
+            // write the cache file
+            file_put_contents($file, $value);
+            chmod($file, 0666);
+        }
+
+        return $value;
+    }
+
     //@end_class
 }
 

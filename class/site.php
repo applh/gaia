@@ -39,22 +39,26 @@ class site
     static function template ($filename, $template)
     {
         $templateFile = null;
-        // get domain name
-        $path_domain= gaia::kv("path_domain");
-        $path_template = "$path_domain/templates/$template";
-        os::debug("($filename, $template)$path_template");
-        // check if template exists
-        if (file_exists($path_template)) {
-            $templateFile = $path_template;
-            include($templateFile);
-        }
-        else {
-            $path_root = gaia::kv("root");
-            $templateFile = "$path_root/templates/$template";
-            os::debug("($filename, $template)$templateFile");
-            if (is_file($templateFile)) {
+
+        if ($template) {
+            // get domain name
+            $path_domain= gaia::kv("path_domain");
+            $path_template = "$path_domain/templates/$template";
+            // os::debug("($filename, $template)$path_template");
+            // check if template exists
+            if (file_exists($path_template)) {
+                $templateFile = $path_template;
                 include($templateFile);
             }
+            else {
+                $path_root = gaia::kv("root");
+                $templateFile = "$path_root/templates/$template";
+                // os::debug("($filename, $template)$templateFile");
+                if (is_file($templateFile)) {
+                    include($templateFile);
+                }
+            }
+
         }
 
         return $templateFile;

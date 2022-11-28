@@ -6,7 +6,15 @@ class web
     static function run()
     {
 
-        ob_start();
+        $uri = $_SERVER["REQUEST_URI"] ?? "";
+        extract(parse_url($uri));
+        $path = $path ?? "";
+        // special case for root
+        if ($path == "/") {
+            $path = "/index.html";
+        }
+        extract(pathinfo($path));
+        $extension ??= "";
 
         // load domain config
         site::setup();
@@ -18,22 +26,54 @@ class web
         }
 
         if (!$found) {
+            $found = web::cache_load($path, $extension) ?? false;
+        }
+        
+        if (!$found) {
+            ob_start();
+
             $found = web::load_template();
+            $code = ob_get_clean();
+            // save cache if needed
+            if (gaia::kv("cache_save")) {
+                web::cache_save($path, $code);
+            }
+            os::debug_headers();
+            echo $code;
         }
 
-        $code = ob_get_clean();
-        os::debug_headers();
-        echo $code;
+
+    }
+
+    static function cache_load ($path, $extension)
+    {
+        $found = false;
+
+        if (empty($_POST)) {
+            $mime_type = web::mime($extension);
+            os::debug("cache_load($path, $extension) $mime_type");
+            header("Content-Type: $mime_type");
+            $found = os::cache($path, show:true);    
+        }
+        return $found;
+    }
+
+    static function cache_save ($path, $content)
+    {
+        // save cache
+        return os::cache($path, $content);
     }
 
     static function load_template ()
     {
+        os::debug("load_template()");
+
         $uri = $_SERVER["REQUEST_URI"] ?? "";
         extract(parse_url($uri));
         $path = $path ?? "";
         // special case for root
         if ($path == "/") {
-            $path = "/index.php";
+            $path = "/index.html";
         }
         $now = date("ymd-His");
 
@@ -80,6 +120,7 @@ class web
             $dir0 = os::filter("var", "", $dir0);
 
             $callback = "route_$dir0::check";
+            os::debug("route $callback");
             if (is_callable($callback)) {
                 $dir1 = os::filter("var", "", $dir1);
                 $template = $callback($dir1, $filename, $extension);
@@ -87,9 +128,13 @@ class web
         }
 
         // check if template exists
-        $templateFile = site::template($filename, $template);
         // if template exists then include it
+        site::template($filename, $template);
 
+        // if extension is not php then set flag cache_save
+        if (empty($_POST) && ($extension != "php")) {
+            gaia::kv("cache_save", true);
+        }
     }
 
 
@@ -159,7 +204,7 @@ class web
             "mp3" => "audio/mpeg",
             "wav" => "audio/wav",
             "avi" => "video/x-msvideo",
-            "php" => "text/plain",
+            "php" => "text/html",
         ];
 
         $mime = $mimes[$ext] ?? "application/octet-stream";
