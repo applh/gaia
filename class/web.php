@@ -24,8 +24,8 @@ class web
         if (php_sapi_name() == 'cli-server') {
             $found = web::check_asset();
         }
-
-        if (!$found) {
+        $cache_disable = gaia::kv("cache_disable") ?? false;
+        if (!$found && !$cache_disable) {
             $found = web::cache_load($path, $extension) ?? false;
         }
 
@@ -35,7 +35,7 @@ class web
             $found = web::load_template();
             $code = ob_get_clean();
             // save cache if needed
-            if (gaia::kv("cache_save")) {
+            if (!$cache_disable && gaia::kv("cache_save")) {
                 web::cache_save($path, $code);
             }
             os::debug_headers();
@@ -48,6 +48,7 @@ class web
         $found = false;
 
         if (empty($_POST)) {
+
             $mime_type = web::mime($extension);
             os::cache($path);
             $cache_file = gaia::kv("os/cache/file") ?? "";
@@ -82,14 +83,20 @@ class web
             $extension = $extension ?? "";
 
             if (!empty($_POST)) {
-                $context = stream_context_create([
-                    'http' => [
-                        'method' => 'POST',
-                        'header' => 'Content-type: application/x-www-form-urlencoded',
-                        'content' => http_build_query($_POST),
-                    ],
-                ]);
+                $http_headers = [
+                    'method' => 'POST',
+                    'header' => 'Content-type: application/x-www-form-urlencoded',
+                    'content' => http_build_query($_POST),
+                    'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? "",
+                ];
+            } else {
+                $http_headers = [
+                    'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? "",
+                ];
             }
+            $context = stream_context_create([
+                "http" => $http_headers,
+            ]);
 
             $url = "$proxy$uri";
             // $content = file_get_contents($url);

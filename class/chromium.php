@@ -1,11 +1,13 @@
-<?php 
+<?php
+
+use chromium as GlobalChromium;
 
 class chromium
 {
-    static function web ()
+    static function web()
     {
         echo "(chromium test method)";
-        extract(cli::param_json(2)?? []);
+        extract(cli::param_json(2) ?? []);
         $targetUrl = $url ?? "";
         $w ??= 1680;
         $h ??= 2160;
@@ -71,7 +73,7 @@ class chromium
 
                 sleep($sleep);
                 $retry++;
-            } 
+            }
             // evaluate script in the browser
             $evaluation = $page->evaluate('document.querySelectorAll(".a-enter-vr-button").forEach((e) => e.style.display = "none");') ?? "";
 
@@ -84,19 +86,17 @@ class chromium
             echo "$html";
 
             $page
-                ->screenshot([    
+                ->screenshot([
                     'captureBeyondViewport' => true,
                     'clip'  => $clip,
                 ])
                 ->saveToFile($targetFile);
-
         } finally {
             $browser->close();
         }
-
     }
 
-    static function web_multiple ($urls)
+    static function web_multiple($urls)
     {
         extract(cli::param_json(2));
         $w ??= 1680;
@@ -121,7 +121,7 @@ class chromium
         chmod($path_frames, 0777);
 
         $concat = "";
-        for ($index=$urls_min; $index < $urls_max; $index++) {
+        for ($index = $urls_min; $index < $urls_max; $index++) {
             $url = trim($urls[$index] ?? "");
             if ($url) {
                 $index3 = str_pad($index, 3, "0", STR_PAD_LEFT);
@@ -131,29 +131,28 @@ class chromium
                 // chmod($targetFile, 0666);
 
                 // $cmd = "chromium --headless --window-size=$w,$h --run-all-compositor-stages-before-draw --virtual-time-budget=10000 --screenshot=$targetFile $url";
-                $cmd = "$chromium_exe --headless --disable-gpu --window-size=$w,$h --run-all-compositor-stages-before-draw $chromium_options --screenshot=$targetFile $url";
-                $output = shell_exec($cmd);
-    
+                // $cmd = "$chromium_exe --headless --disable-gpu --window-size=$w,$h --run-all-compositor-stages-before-draw $chromium_options --screenshot=$targetFile $url";
+                // $output = shell_exec($cmd);
+                chromium::screenshot($url, $targetFile, $w, $h, $timeout);
+
                 $concat .= "file 'f-$now-$index3.png'\n";
                 $concat .= "duration $slide_duration\n";
-    
-                echo 
+
+                echo
                 <<<txt
                 ---
                 (index: $index)
                 (url: $url)
                 (targetFile: $targetFile)
-                (cmd: $cmd)
-                (output: $output)
                 ---
     
-                txt;    
+                txt;
             }
         }
 
         // convert to pdf
         if ($pdf_prefix) {
-            $target_pdf= "$path_frames/$pdf_prefix-$now.pdf";
+            $target_pdf = "$path_frames/$pdf_prefix-$now.pdf";
             $cmd = "convert $path_frames/f-$now-*.png $target_pdf";
             echo "(cmd: $cmd)";
             $output = shell_exec($cmd);
@@ -172,23 +171,66 @@ class chromium
             $concat_file = "$path_frames/concat-$now.txt";
             file_put_contents($concat_file, $concat);
 
-            $target_movie= "$path_data/movies/$movie_prefix-$now.mp4";
+            $target_movie = "$path_data/movies/$movie_prefix-$now.mp4";
             // $cmd = "ffmpeg -framerate 1/$slide_duration -i $path_data/screenshot-$now-%d.png -c:v libx264 -r 30 -pix_fmt yuv420p $target_movie";
             // $cmd = "ffmpeg -f concat -i $concat_file -c:v libx264 -pix_fmt yuv420p $target_movie";
             $cmd = "ffmpeg -f concat -i $concat_file -c:v libx264 -pix_fmt yuv420p $target_movie";
             echo "(cmd: $cmd)";
             $output = shell_exec($cmd);
             echo "(output: $output)";
+            echo "($target_movie)";
 
             // copy to path_publish if set
             if ($path_publish) {
                 $target_movie_publish = "$path_publish/$movie_prefix-$now.mp4";
                 copy($target_movie, $target_movie_publish);
+
+                echo "($target_movie_publish)";
             }
         }
     }
 
-    static function read ()
+    /**
+     * WARNING: 
+     * trying to re-use the same browser for all screenshots is NOT working ?!
+     * => timeout on the second screenshot ?!
+     */
+    static function screenshot($targetUrl="", $targetFile="", $w=1200, $h=1200, $timeout=10000)
+    {
+        $browser = null;
+        $page = null;
+        $clip = null;
+
+        if ($browser == null) {
+            // replace default 'chrome' with 'chromium-browser' or 'chromium'
+            $browserFactory = new HeadlessChromium\BrowserFactory($browserExe ?? "chromium");
+
+            $browser = $browserFactory->createBrowser([
+                'windowSize'   => [$w, $h],
+            ]);
+            $clip = new HeadlessChromium\Clip(0, 0, $w, $h);
+
+            // load the page and take screenshot
+            $page = $browser->createPage();
+        }
+
+        try {
+            // $page->navigate($targetUrl)->waitForNavigation(HeadlessChromium\Page::NETWORK_IDLE, $timeout);
+            $page->navigate($targetUrl)->waitForNavigation(HeadlessChromium\Page::LOAD, $timeout);
+
+            $page
+                ->screenshot([
+                    'captureBeyondViewport' => true,
+                    'clip'  => $clip,
+                ])
+                ->saveToFile($targetFile);
+        } finally {
+            $browser->close();
+        }
+    }
+
+
+    static function read()
     {
         extract(cli::param_json(2));
 
@@ -279,15 +321,13 @@ class chromium
                     // create the file if not exists
                     if (!file_exists($targetWebp)) {
                         rename($targetFile, $targetWebp);
-                    }
-                    else {
+                    } else {
                         // delete the file
                         unlink($targetFile);
                     }
                 }
             }
-        }
-        finally {
+        } finally {
             $browser->close();
         }
     }
