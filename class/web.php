@@ -28,7 +28,7 @@ class web
         if (!$found) {
             $found = web::cache_load($path, $extension) ?? false;
         }
-        
+
         if (!$found) {
             ob_start();
 
@@ -41,36 +41,95 @@ class web
             os::debug_headers();
             echo $code;
         }
-
-
     }
 
-    static function cache_load ($path, $extension)
+    static function cache_load($path, $extension)
     {
         $found = false;
 
         if (empty($_POST)) {
             $mime_type = web::mime($extension);
-            os::debug("cache_load($path, $extension) $mime_type");
-            header("Content-Type: $mime_type");
-            $found = os::cache($path, show:true);    
+            os::cache($path);
+            $cache_file = gaia::kv("os/cache/file") ?? "";
+            if ($cache_file) {
+                os::debug("cache_found($path,$extension,$mime_type($cache_file)");
+                os::debug_headers();
+                header("Content-Type: $mime_type");
+                header("Cache-Control: public, max-age=31536000");
+                $content = file_get_contents($cache_file);
+                echo $content;
+                $found = true;
+            }
         }
         return $found;
     }
 
-    static function cache_save ($path, $content)
+    static function cache_save($path, $content)
     {
         // save cache
         return os::cache($path, $content);
     }
 
-    static function load_template ()
+    static function load_proxy($uri, $path)
+    {
+        $found = false;
+        // if proxy is set then load content
+        $proxy = gaia::kv("proxy");
+        if ($proxy) {
+            // $path = trim($path, "/");
+            extract(pathinfo($path));
+
+            $extension = $extension ?? "";
+
+            if (!empty($_POST)) {
+                $context = stream_context_create([
+                    'http' => [
+                        'method' => 'POST',
+                        'header' => 'Content-type: application/x-www-form-urlencoded',
+                        'content' => http_build_query($_POST),
+                    ],
+                ]);
+            }
+
+            $url = "$proxy$uri";
+            // $content = file_get_contents($url);
+            $stream = fopen($url, 'r', false, $context ?? null);
+            $meta_headers = stream_get_meta_data($stream);
+            $content = stream_get_contents($stream);
+
+            // get Content-Type from headers
+            $headers = $meta_headers["wrapper_data"];
+            foreach ($headers as $header) {
+                if (strpos($header, "Content-Type") === 0) {
+                    $mime_type = explode(":", $header)[1];
+                    $mime_type = trim($mime_type);
+                    break;
+                }
+            }
+
+            $mime_type ??= web::mime($extension);
+            header("Content-Type: $mime_type");
+            os::debug("load_template($extension)($mime_type)($url)");
+
+            echo $content;
+
+            $found = true;
+        }
+        return $found;
+    }
+
+    static function load_template()
     {
         os::debug("load_template()");
+
+        gaia::kv("cache_save", true);
 
         $uri = $_SERVER["REQUEST_URI"] ?? "";
         extract(parse_url($uri));
         $path = $path ?? "";
+
+        if (web::load_proxy($uri, $path)) return true;
+
         // special case for root
         if ($path == "/") {
             $path = "/index.html";
@@ -87,6 +146,10 @@ class web
 
         $filename = $filename ?? "";
         $extension = $extension ?? "";
+        // if extension is not php then set flag cache_save
+        if ($extension == "php") {
+            gaia::kv("cache_save", false);
+        }
 
         if ($dirname) {
             $parts = explode("/", $dirname);
@@ -130,11 +193,6 @@ class web
         // check if template exists
         // if template exists then include it
         site::template($filename, $template);
-
-        // if extension is not php then set flag cache_save
-        if (empty($_POST) && ($extension != "php")) {
-            gaia::kv("cache_save", true);
-        }
     }
 
 
@@ -249,7 +307,7 @@ class web
         return $sections;
     }
 
-    static function v ($name, $default = "")
+    static function v($name, $default = "")
     {
         echo gaia::kv($name) ?? $default;
     }

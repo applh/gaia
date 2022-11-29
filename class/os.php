@@ -127,7 +127,7 @@ class os
         }
     }
 
-    static function cache ($key, $value=null, $ttl=3600, $show=false)
+    static function cache ($key, $value=null, $ttl=3600)
     {
         static $path_cache = null;
         static $now = null;
@@ -141,6 +141,7 @@ class os
             // create cache folder if not exists
             if (!is_dir($path_cache)) {
                 mkdir($path_cache, 0777, true);
+                chmod($path_cache, 0777);
             }
         }
         // cache file
@@ -149,19 +150,11 @@ class os
         $file = "$path_cache/tmp-$key_md5";
         // if value is null then read the cache file
         if ($value === null) {
-            // os::debug("cache_read($key_md5)");
-
             // check ttl
             if (file_exists($file)) {
                 if ($now < $ttl + filemtime($file)) {
-                    $value = file_get_contents($file);
-                    if ($show) {
-                        os::debug("cache_found($key_md5)");
-
-                        os::debug_headers();
-                        header("Cache-Control: public, max-age=31536000");
-                        echo $value;
-                    }
+                    $value = true;
+                    gaia::kv("os/cache/file", $file);
                 }
                 else {
                     // WARNING: can be dangerous
