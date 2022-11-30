@@ -2,6 +2,7 @@ console.log('hello');
 
 // store my reactive data
 let appData = {
+    api_url: '/api/json',
     inputs: {},
     window_w: window.innerWidth,
     window_h: window.innerHeight,
@@ -45,20 +46,25 @@ let mounted = function () {
 }
 
 let methods = {
-    async api(inputs) {
-        let formData = new FormData();
-        // add inputs to FormData
-        for (let key in inputs) {
-            formData.append(key, inputs[key]);
-        }
-        // send request
-        let response = await fetch('/api', {
-            method: 'POST',
-            body: formData
-        });
+    async api(inputs, formData=null) {
+        let data = null;
+        if (this.api_url) {
+            formData ??= new FormData();
 
-        let data = await response.json();
-        console.log(data);
+            // add inputs to FormData
+            for (let key in inputs) {
+                formData.append(key, inputs[key]);
+            }
+            // send request
+            let response = await fetch(this.api_url, {
+                method: 'POST',
+                body: formData
+            });
+    
+            data = await response.json();
+            console.log(data);
+        }
+
         return data;
     },
     test(msg = '') {

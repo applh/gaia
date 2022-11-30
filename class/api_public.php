@@ -26,6 +26,12 @@ class api_public
     static function contact ()
     {
         $now = date("d/m/y H:i:s");
+
+        // load form infos from json file in site templates folder
+        $path_domain = gaia::kv("path_domain");
+        $path_form = "$path_domain/templates/contact.json";
+        $form_infos = json_decode(file_get_contents($path_form), true);
+
         // get name, email, message
         // check form
         form::filters([
