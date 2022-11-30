@@ -89,25 +89,6 @@ class os
         return $value;
     }
     
-    // filters
-    static function filter ($type, $name, $default="")
-    {
-        $in = os::input($name, $default);
-        if ($type= "var") {
-            // remove special characters
-            $in = preg_replace("/[^a-zA-Z0-9_]/", "", $in);
-        }
-        elseif ($type == "int")
-        {
-            $in = intval($in);
-        }
-        elseif ($type == "float")
-        {
-            $in = floatval($in);
-        }
-
-        return $in;
-    }
 
     static function debug ($var=null)
     {

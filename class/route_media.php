@@ -23,6 +23,7 @@ class route_media
         // if file exists then reead it
         if (is_file($path_media)) {
             $mime = web::mime($extension);
+            gaia::kv("headers/Content-Type", $mime);
             header("Content-Type: $mime");
             // cache control
             header("Cache-Control: max-age=31536000");

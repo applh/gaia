@@ -10,8 +10,8 @@ $infos["request"] = $_REQUEST;
 $infos["files"] = $_FILES;
 
 // check if api call
-$c = os::filter("var", "c", "public");
-$m = os::filter("var", "m");
+$c = form::filter("var", "c", "public");
+$m = form::filter("var", "m");
 
 if ($c && $m) {
     $api_call = "api_$c::$m";

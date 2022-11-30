@@ -60,6 +60,8 @@ class web
 
     static function run_nocache ()
     {
+        // cache output to allow sending headers
+        ob_start();
         $found = web::load_template();
         $code = ob_get_clean();
         os::debug_headers();
@@ -212,12 +214,12 @@ class web
             $dir1 = $parts[1] ?? $filename; //FIXME
 
             // TODO: better filter ?
-            $dir0 = os::filter("var", "", $dir0);
+            $dir0 = form::filter("var", "", $dir0);
 
             $callback = "route_$dir0::check";
             os::debug("route $callback");
             if (is_callable($callback)) {
-                $dir1 = os::filter("var", "", $dir1);
+                $dir1 = form::filter("var", "", $dir1);
                 $template = $callback($dir1, $filename, $extension);
             }
         }
