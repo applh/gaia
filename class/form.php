@@ -120,7 +120,7 @@ class form
                 // check if form process exists
                 $callback = $form_infos["process_form"] ?? "";
                 if ($callback && is_callable($callback)) {
-                    $message = $callback();
+                    $message = $callback($form_infos);
                 }
             } else {
                 $message = implode(", ", form::$errors);
@@ -161,8 +161,11 @@ class form
         api::json_data("forms", $forms);
     }
 
-    static function process_mail ()
+    static function process_mail ($form_infos)
     {
+        $form_name = $form_infos["name"] ?? "";
+        $form_feedback = $form_infos["feedback"] ?? "";
+
         $now = form::now("d/m/y H:i:s");
 
         extract(form::$inputs);
@@ -171,12 +174,14 @@ class form
         $message ??= "";
 
         // send email
-        $subject = "Contact from $name";
+        $subject = "($form_name) from $name";
         $body =
         <<<txt
-        Contact from $name ($email) 
-        at $now
+        ($form_name) at $now
         
+        $name 
+        $email
+
         $message
 
         txt;
@@ -186,7 +191,7 @@ class form
         if ($to) {
             mailer::send($to, $subject, $body);
         }
-        gaia::kv("api/feedback", "$message ($now)");
+        gaia::kv("api/feedback", "$form_feedback ($now)");
 
     }
 

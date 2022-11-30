@@ -3,6 +3,7 @@ console.log('hello');
 // store my reactive data
 let appData = {
     api_url: '/api/json',
+    feedbacks: {},
     inputs: {},
     window_w: window.innerWidth,
     window_h: window.innerHeight,

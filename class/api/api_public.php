@@ -20,12 +20,19 @@ class api_public
     static function stat()
     {
         $message = os::input("message");
-        return "(stat) $message";
+        return $message;
     }
 
-    static function list_forms ()
+    static function list_forms()
     {
         $message = form::process("list-forms");
+        return $message;
+    }
+
+    static function newsletter()
+    {
+        $message = form::process("newsletter");
+        return $message;
     }
 
     static function contact()
