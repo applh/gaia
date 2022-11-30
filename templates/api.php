@@ -36,7 +36,7 @@ if ($c && $m) {
         }
     }
 }
-
+$infos["feedback"] = gaia::kv("api/feedback") ?? "";
 // add debug infos
 $infos["debug"] = os::debug();
 

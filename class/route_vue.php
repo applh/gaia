@@ -14,7 +14,7 @@ class route_vue
 
     static function check ($dir1, $filename="", $extension="")
     {
-       $template = "vuejs-component.php";
+       $template = site::component($filename) ?? "vuejs-component.php";
 
         return $template;
     }

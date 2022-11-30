@@ -23,6 +23,12 @@ class api_public
         return "(stat) $message";
     }
 
+    static function contact ()
+    {
+        $message = os::input("message");
+        gaia::kv("api/feedback", "(contact) $message");
+        return "(contact) $message";
+    }
     //@end_class
 }
 

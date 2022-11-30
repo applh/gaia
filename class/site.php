@@ -64,6 +64,21 @@ class site
         return $templateFile;
     }
 
+    static function component ($filename)
+    {
+        $template = null;
+
+        $path_domain= gaia::kv("path_domain");
+        $path_template = "$path_domain/templates/$filename.php";
+        // find template file $filename.php
+        if (file_exists($path_template)) {
+            header("Content-Type: application/javascript");
+            $template = "$filename.php";
+        }
+
+        return $template;
+    }
+
     //@end_class
 }
 

@@ -24,8 +24,22 @@ class web
         if (php_sapi_name() == 'cli-server') {
             $found = web::check_asset();
         }
+        if (!$found) {
+            $cache_disable = gaia::kv("cache_disable") ?? false;
+            if (!$cache_disable) {
+                $found = web::run_cache($path, $extension) ?? false;
+            }
+            else {
+                $found = web::run_nocache($path, $extension) ?? false;
+            }    
+        }
+    }
+
+    static function run_cache ($path, $extension)
+    {
         $cache_disable = gaia::kv("cache_disable") ?? false;
-        if (!$found && !$cache_disable) {
+
+        if (!$cache_disable) {
             $found = web::cache_load($path, $extension) ?? false;
         }
 
@@ -41,6 +55,17 @@ class web
             os::debug_headers();
             echo $code;
         }
+
+    }
+
+    static function run_nocache ()
+    {
+        $found = web::load_template();
+        $code = ob_get_clean();
+        os::debug_headers();
+        echo $code;
+
+        return $found;
     }
 
     static function cache_load($path, $extension)
