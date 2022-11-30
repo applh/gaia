@@ -95,6 +95,17 @@ class form
         return $in;
     }
 
+    static function js ($names)
+    {
+        $infos = [];
+        foreach($names as $name) {
+            $infos[$name] = form::form_infos($name);
+        }
+        $js = json_encode($infos, JSON_PRETTY_PRINT);
+
+        echo $js;
+    }
+
     static function process ($form_name)
     {
         $form_infos = form::form_infos($form_name);
@@ -126,6 +137,28 @@ class form
         
         $time ??= time();
         return date($format, $time);
+    }
+
+    static function process_list_forms ()
+    {
+        $forms = [];
+        // get names
+        extract(form::$inputs);
+        $names ??= "";
+        $names = explode(",", $names);
+        foreach ($names as $name) {
+            // trim name
+            $name = trim($name);
+            // sanitize name
+            $name = preg_replace("/[^a-zA-Z0-9-_]/", "", $name);
+            // check if form exists
+            $form_infos = form::form_infos($name);
+            if (!empty($form_infos)) {
+                $forms[$name] = $form_infos;
+            }
+        }
+
+        api::json_data("forms", $forms);
     }
 
     static function process_mail ()

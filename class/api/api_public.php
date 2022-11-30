@@ -23,12 +23,17 @@ class api_public
         return "(stat) $message";
     }
 
+    static function list_forms ()
+    {
+        $message = form::process("list-forms");
+    }
+
     static function contact()
     {
         $message = form::process("contact");
         return $message;
     }
-    
+
     //@end_class
 }
 
