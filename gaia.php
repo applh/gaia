@@ -4,7 +4,8 @@
 class gaia
 {
     static $root = __DIR__;
-    
+    static $class_glob = [];
+
     static function main ()
     {
         // debug line
@@ -51,13 +52,19 @@ class gaia
     {
         // basic autoloader
         // TODO: remove the namespace from the class name
+        static::$class_glob[] = __DIR__ . "/class";
+        static::$class_glob[] = __DIR__ . "/class/*";
 
-        // get the class file
-        $file = __DIR__ . "/class/$class.php";
-
-        // check if the file exists
-        if (file_exists($file)) {
-            require $file;
+        foreach(static::$class_glob as $path)
+        {
+            $glob_search = "$path/$class.php";
+            $files = glob($glob_search);
+            // pick the first file
+            $found = $files[0] ?? "";
+            if ($found) {
+                include $found;
+                return;
+            }
         }
     }
 

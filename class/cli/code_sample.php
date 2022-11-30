@@ -8,7 +8,7 @@
  */
 
 
-class sample
+class code_sample
 {
     //@start_class
 

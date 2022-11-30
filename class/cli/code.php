@@ -35,10 +35,10 @@ class code
             return;
         }
 
-        // read the code from sample.php
-        $code = file_get_contents("class/sample.php");
+        // read the code from sample.php in the same folder
+        $code = file_get_contents(__DIR__ . "/code_sample.php");
         // replace the placeholders
-        $code = str_replace("sample", $classname, $code);
+        $code = str_replace("code_sample", $classname, $code);
         $code = str_replace("==DATE==", date("Y-m-d H:i:s"), $code);
         $code = str_replace("==AUTHOR==", gaia::kv("code_author") ?? "YOUR NAME", $code);
         $code = str_replace("==LICENSE==", gaia::kv("code_license") ?? "YOUR LICENSE", $code);
