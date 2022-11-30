@@ -25,8 +25,9 @@ class api_public
 
     static function contact ()
     {
+        $now = date("d/m/y H:i:s");
         $message = os::input("message");
-        gaia::kv("api/feedback", "(contact) $message");
+        gaia::kv("api/feedback", "$message ($now)");
         return "(contact) $message";
     }
     //@end_class

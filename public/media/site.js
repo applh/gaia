@@ -2,6 +2,7 @@ console.log('hello');
 
 // store my reactive data
 let appData = {
+    inputs: {},
     window_w: window.innerWidth,
     window_h: window.innerHeight,
     message: 'Vue is everywhere!'
