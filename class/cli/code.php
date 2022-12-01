@@ -58,11 +58,21 @@ class code
         echo "($source)($md5)".PHP_EOL;
     }
 
+    static function sha1 ()
+    {
+        // get parameter 2
+        $source = cli::parameters(2);
+        // sha1 the source
+        $sha1 = sha1($source);
+        // print the md5
+        echo "($source)($sha1)".PHP_EOL;
+    }
+
     static function api_key ()
     {
         // build a valid api_key
         // get the api key from the config file
-        $key_private = gaia::kv("api/key");
+        $key_private = gaia::kv("api/key") ?? cli::parameters(2) ?? "";
         // get the maxtime
         $maxtime = time() + 3600;
         // build the api_key
@@ -83,6 +93,7 @@ class code
         echo 
         <<<txt
         
+        (private_key: $key_private)
         (api_key: $api_key)
 
         php gaia.php code::check_key $api_key
@@ -94,6 +105,8 @@ class code
     {
         // get parameter 2
         $param64 = cli::parameters(2);
+        $key_private = cli::parameters(3) ?? gaia::kv("api/key") ?? "";
+
         // if $api_key is empty, then exit
         if (empty($param64))
         {
@@ -114,15 +127,15 @@ class code
             // check if $maxtime is not expired
             if ($maxtime > time())
             {
-                $key_private = gaia::kv("api/key");
                 // check if $hash is password_hash($key_private . $maxtime)
                 if (password_verify($key_private . $maxtime, $hash))
                 {
+                    print_r($keys);
                     echo "The api_key is valid".PHP_EOL;
                 }
                 else
                 {
-                    echo "The api_key is not valid".PHP_EOL;
+                    echo "The api_key is not valid ($key_private)".PHP_EOL;
                     print_r($keys);
                 }
             }
@@ -135,6 +148,18 @@ class code
         {
             echo "WTF api_key is not valid ($param64)($api_key)".PHP_EOL;
         }
+    }
+
+    static function toto ()
+    {
+        // test api key hash
+        $k = "7ea80b6f5c7a03af89ca7042689cb8e12d615ec11669918634";
+        $p = "7ea80b6f5c7a03af89ca7042689cb8e12d615ec1";
+        $t = "1669919513";
+
+        $h = '$2y$10$ygzib2mhCuIdStAQmEjjRuJa503DbNNkyIB/RomI9mCNpiwE9NWty';
+        var_dump(password_verify("$p$t", $h));
+
     }
     //@end_class
 }

@@ -167,6 +167,8 @@ class form
         $form_feedback = $form_infos["feedback"] ?? "";
 
         $now = form::now("d/m/y H:i:s");
+        $dtnow = form::now("Y-m-d H:i:s");
+        $fnow = form::now("Ymd-His");
 
         extract(form::$inputs);
         $name ??= "";
@@ -191,6 +193,17 @@ class form
         if ($to) {
             mailer::send($to, $subject, $body);
         }
+
+        // create new line in sqlite db
+        model::create([
+            "path" => "forms/$form_name",
+            "filename" => "$form_name-$fnow",
+            "title" => $subject,
+            "content" => $body,
+            "created" => $dtnow,
+        ]);
+
+        // add feedback
         gaia::kv("api/feedback", "$form_feedback ($now)");
 
     }

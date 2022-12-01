@@ -35,11 +35,7 @@ class controller
         $res = false;
         // get api_key
         $api_key = form::filter("var", "api_key");
-        // if api_key then check if it is valid
-        // debug 
-        
-        os::debug($api_key);
-
+        // if api_key then check if it is valid        
         if ($api_key) {
             // api_key is base64 encoded
             $api_key = base64_decode($api_key);
@@ -52,13 +48,18 @@ class controller
             if (is_array($keys)) {
                 $maxtime = $keys["maxtime"] ?? 0;
                 $hash = $keys["hash"] ?? "";
+
                 // check if $maxtime is not expired
-                if ($maxtime > time()) {
+                $tnow = time();
+                if ($maxtime > $tnow) {
                     $key_private = gaia::kv("api/key");
                     // check if $hash is password_hash($key_private . $maxtime)
                     if (password_verify($key_private . $maxtime, $hash)) {
                         $res = true;
                     }
+                }
+                else {
+                    os::debug("expired($maxtime)($tnow)");
                 }
             }
         }
