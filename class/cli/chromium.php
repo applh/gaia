@@ -112,6 +112,8 @@ class chromium
         $urls_max ??= count($urls);
         $urls_min ??= 0;
 
+        $cmdjs ??= [];
+
         $now = date("ymd-His");
         // path root
 
@@ -133,7 +135,7 @@ class chromium
                 // $cmd = "chromium --headless --window-size=$w,$h --run-all-compositor-stages-before-draw --virtual-time-budget=10000 --screenshot=$targetFile $url";
                 // $cmd = "$chromium_exe --headless --disable-gpu --window-size=$w,$h --run-all-compositor-stages-before-draw $chromium_options --screenshot=$targetFile $url";
                 // $output = shell_exec($cmd);
-                chromium::screenshot($url, $targetFile, $w, $h, $timeout);
+                chromium::screenshot($url, $targetFile, $w, $h, $timeout, $cmdjs);
 
                 $concat .= "file 'f-$now-$index3.png'\n";
                 $concat .= "duration $slide_duration\n";
@@ -195,7 +197,7 @@ class chromium
      * trying to re-use the same browser for all screenshots is NOT working ?!
      * => timeout on the second screenshot ?!
      */
-    static function screenshot($targetUrl="", $targetFile="", $w=1200, $h=1200, $timeout=10000)
+    static function screenshot($targetUrl="", $targetFile="", $w=1200, $h=1200, $timeout=10000, $cmdjs=[])
     {
         $browser = null;
         $page = null;
@@ -218,12 +220,21 @@ class chromium
             // $page->navigate($targetUrl)->waitForNavigation(HeadlessChromium\Page::NETWORK_IDLE, $timeout);
             $page->navigate($targetUrl)->waitForNavigation(HeadlessChromium\Page::LOAD, $timeout);
 
+            foreach($cmdjs as $cmd) {
+                echo "($cmd)";
+
+                $ev = $page->evaluate($cmd);
+                $res = $ev->getReturnValue($timeout) ?? "";
+
+                echo "($res)\n";
+            }
+
             $page
                 ->screenshot([
                     'captureBeyondViewport' => true,
                     'clip'  => $clip,
                 ])
-                ->saveToFile($targetFile);
+                ->saveToFile($targetFile, $timeout);
         } finally {
             $browser->close();
         }
