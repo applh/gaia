@@ -16,13 +16,35 @@
     <script src="/media/p5js/p5.min.js"></script>
     <script>
         let img1 = null;
+        let slide_url = null;
         let slide_text_dyn = null;
         let slide_title_dyn = null;
         let slide_title_size = 60;
+        let frame_scale = 10;
 
-        function set_slide_img(url) {
-            img1 = loadImage(url);
+        function set_frame_scale (scale) {
+            frame_scale = scale;
         }
+
+        async function set_slide_img (url, wait=500) {
+            if (slide_url == null) {
+                img1 = loadImage(url, img => {
+                    slide_url = url;
+                    // console.log(img);
+                    // console.log(img.width);
+                    // console.log(img.height);
+                });
+                // wait image load
+                await new Promise(r => setTimeout(r, wait));
+            }
+            else if (url != slide_url) {
+                slide_url = url;
+                img1 = loadImage(url);
+                // wait image load
+                await new Promise(r => setTimeout(r, wait));
+            }
+        }
+
         function add_slide_line (text) {
             slide_text_dyn ??= '';
             slide_text_dyn += '\n' + text;
@@ -86,7 +108,7 @@
                 // convert the hash to an integer
                 hash = parseInt(hash);
                 // set the slider value to the hash
-                rSlider.value(10 * hash);
+                rSlider.value(frame_scale * hash);
             }
 
             let w = width * 0.5;
@@ -103,12 +125,13 @@
             // LIGHTS
             background(0);
             ambientLight(255, 255, 255);
-            lightFalloff(1, 0, 0);
-            pointLight(255, 255, 255, 0, 0, 200);
-            lightFalloff(1, 0, 0);
-            pointLight(255, 255, 255, 0, h -100, 300);
-            pointLight(255, 0, 0, w -100, h -100, 300);
-           // pointLight(255, 255, 255, locX, locY, 100);
+            // lightFalloff(1, 0, 0);
+            let light_z = plane_z * 0.100;
+            pointLight(100 + light_z, light_z, light_z, 0, 0, 300);
+            // lightFalloff(1, 0, 0);
+            pointLight(255, 255, 255, 0, 0, 600);
+            pointLight(255 - 2 * light_z, 0, 0, w -100, h -100, 300);
+            // pointLight(255, 255, 255, locX, locY, 100);
             
             // Displays the image at its actual size at point (0,0)
             // image(img, 0, 0);
@@ -142,6 +165,7 @@
             // plane_z += 1;
 
             texture(img1);
+            shininess(100);
             plane(img1.width, img1.height);
             pop();
 
@@ -177,7 +201,7 @@
             slide_text = slide_text.substring(0, lmax);
             push();
             textSize(40);
-            translate(-w +80, -h +160, 10);
+            translate(-w +80, -h + (3 * slide_title_size), 10);
             fill(255, 255, 255);
             textAlign(LEFT, TOP);
 
