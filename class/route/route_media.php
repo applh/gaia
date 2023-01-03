@@ -20,7 +20,7 @@ class route_media
         $path_domain = gaia::kv("path_domain");
         $path_media = "$path_domain/media/$dir1.$extension";
         os::debug("($dir1, $filename, $extension)$path_media");
-        // if file exists then reead it
+        // if file exists then read it
         if (is_file($path_media)) {
             $mime = web::mime($extension);
             gaia::kv("headers/Content-Type", $mime);
