@@ -1,20 +1,25 @@
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
     height: 100%;
     width: 100%;
     font-size: 16px;
 }
+
 body * {
     box-sizing: border-box;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     text-align: center;
     width: 100%;
     padding: 1rem;
     margin: 0;
 }
+
 a {
     text-decoration: none;
     color: #000;
@@ -23,12 +28,12 @@ a {
 p {
     text-align: center;
     display: block;
-    margin:0;
+    margin: 0;
     padding: 1rem;
 }
 
 img {
-    width:100%;
+    width: 100%;
     height: auto;
     object-fit: cover;
     aspect-ratio: 2/1;
@@ -37,6 +42,7 @@ img {
 .of-contain {
     object-fit: contain;
 }
+
 .of-cover {
     object-fit: cover;
 }
@@ -54,57 +60,31 @@ img {
 .pad1 {
     padding: 1rem;
 }
+
 .pad2 {
     padding: 2rem;
 }
+
 .pad3 {
     padding: 3rem;
 }
+
 .pad4 {
     padding: 4rem;
 }
+
 /* CSS3: width depending on number of siblings */
 /* one item */
 .col:first-child:nth-last-child(1) {
-/* -or- li:only-child { */
+    /* -or- li:only-child { */
     width: 100%;
 }
 
-/* two items */
-.col:first-child:nth-last-child(2),
-.col:first-child:nth-last-child(2) ~ .col {
-    width: calc(100% / 2);
-}
-
-/* three items */
-.col:first-child:nth-last-child(3),
-.col:first-child:nth-last-child(3) ~ .col {
-    width: calc(100% / 3);
-}
-
-/* four items */
-.col:first-child:nth-last-child(4),
-.col:first-child:nth-last-child(4) ~ .col {
-    width: calc(100% / 4);
-}
-
-/* five items */
-.col:first-child:nth-last-child(5),
-.col:first-child:nth-last-child(5) ~ .col {
-    width: calc(100% / 5);
-}
-/* six items */
-.col:first-child:nth-last-child(6),
-.col:first-child:nth-last-child(6) ~ .col {
-    width: calc(100% / 6);
-}
-.col {
-    width: calc(100% / 6);
-    text-align: center; 
-}
 
 /* RESPONSIVE MEDIA QUERIES */
 @media screen and (min-width: 800px) {
+
+
     /* flexbox */
     .s2 {
         display: flex;
@@ -114,36 +94,83 @@ img {
         flex-wrap: wrap;
         padding-bottom: 4rem;
     }
-    .s2 > * {
+
+    .s2>* {
         width: 100%;
     }
+
     .s2 .s3 {
         width: clamp(400px, calc(100% / 2), 800px);
     }
 }
 
 @media screen and (min-width: 1200px) {
+
+        /* two items */
+        .col:first-child:nth-last-child(2),
+        .col:first-child:nth-last-child(2)~.col {
+            width: calc(100% / 2);
+        }
+    
+        /* three items */
+        .col:first-child:nth-last-child(3),
+        .col:first-child:nth-last-child(3)~.col {
+            width: calc(100% / 3);
+        }
+    
+        /* four items */
+        .col:first-child:nth-last-child(4),
+        .col:first-child:nth-last-child(4)~.col {
+            width: calc(100% / 4);
+        }
+    
+        /* five items */
+        .col:first-child:nth-last-child(5),
+        .col:first-child:nth-last-child(5)~.col {
+            width: calc(100% / 5);
+        }
+    
+        /* six items */
+        .col:first-child:nth-last-child(6),
+        .col:first-child:nth-last-child(6)~.col {
+            width: calc(100% / 6);
+        }
+    
+        .col {
+            width: calc(100% / 6);
+            text-align: center;
+        }
+    
     /* flexbox */
-    .s2.x3col .s3, .s2.x4col .s3, .s2.x5col .s3, .s2.x6col .s3 {
+    .s2.x3col .s3,
+    .s2.x4col .s3,
+    .s2.x5col .s3,
+    .s2.x6col .s3 {
         width: clamp(400px, calc(100% / 3), 800px);
     }
 }
 
 @media screen and (min-width: 1600px) {
+
     /* flexbox */
-    .s2.x4col .s3, .s2.x5col .s3, .s2.x6col .s3 {
+    .s2.x4col .s3,
+    .s2.x5col .s3,
+    .s2.x6col .s3 {
         width: clamp(400px, calc(100% / 4), 800px);
     }
 }
 
 @media screen and (min-width: 2000px) {
+
     /* flexbox */
-    .s2.x5col .s3, .s2.x6col .s3 {
+    .s2.x5col .s3,
+    .s2.x6col .s3 {
         width: clamp(400px, calc(100% / 5), 800px);
     }
 }
 
 @media screen and (min-width: 2400px) {
+
     /* flexbox */
     .s2.x6col .s3 {
         width: clamp(400px, calc(100% / 6), 800px);
@@ -165,6 +192,7 @@ form {
     max-width: 800px;
     margin: 0 auto;
 }
+
 .form-group {
     width: 100%;
     display: flex;
@@ -187,6 +215,7 @@ input {
     border: 1px solid #000;
     font-size: 1rem;
 }
+
 button {
     width: 100%;
     padding: 0.5rem;
@@ -196,6 +225,7 @@ button {
     background-color: #000;
     color: #fff;
 }
+
 textarea {
     width: 100%;
     padding: 0.5rem;
